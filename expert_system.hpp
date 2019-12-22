@@ -11,27 +11,25 @@
 
 class InputManager {
 public:
-	string get_input_file(char ac, char **av, std::vector<string> input_list);
-	string line_cleaner(std::vector<string> input_list);
+	std::string get_input_file(char ac, char **av, std::vector<std::string> input_list);
+	std::string line_cleaner(std::vector<std::string> input_list);
 
 private:
-	int line_quantity;
-	std::vector<string> input_list;
+	std::vector<std::string> input_list;
 
-	int cleaned_quantity;
-	std::vector<string> cleaned_lines
+	std::vector<std::string> cleaned_lines;
 
 };
 
 class DataManager {
-	int rules qty;
-	std::vector<string> Rules;
+	int rules_qty;
+	std::vector<std::string> Rules;
 
-	int facts qty;
-	std::vector<string> Facts;
+	int facts_qty;
+	std::vector<std::string> Facts;
 
-	int querries qty;
-	std::vector<string> Querries;
+	int querries_qty;
+	std::vector<std::string> Querries;
 
 };
 #endif
