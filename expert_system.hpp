@@ -10,6 +10,13 @@
 #include <vector>
 #include <stdexcept>
 
+bool is_char_operator(char c) {
+	if (c == '+' || c == '|' || c == '^')
+		return true;
+	else
+		return false;
+}
+
 class InputManager {
 public:
 	InputManager(){
@@ -20,12 +27,20 @@ public:
 		std::size_t found;
 
 		for (auto i : this->input_list) {
+			/* Delete comments */
 			found = i.find('#');
 			if (found != -1) {
 				i.resize(found);
-				if (i.size() > 0)
-					this->cleaned_lines.push_back(i);
 			}
+			/* Delete spaces */
+			found = 0;
+			do{
+				found = i.find(' ', found);
+				if (found != -1) i.erase(found, 1);
+			} while (found != -1);
+			/* Write to cleaned_rules */
+			if (i.size() > 0)
+				this->cleaned_lines.push_back(i);
 		}
 	}
 
@@ -71,14 +86,24 @@ public:
 	void setterCL(std::vector<std::string> in){
 		this->cleaned_lines = in;
 	}
-	/*void getRules() {
-		for (auto i: this->cleaned_lines)  { // chech each line
-			for (auto symb: i){ //check each character
+
+	std::vector<std::string> getterCL(){
+		return this->cleaned_lines;
+	}
+
+/*	void getRules(std::string str) {
+		int i = 0;
+		while (str[i]){*/
+			/* Rule one - after each letter should goes operator */
+			/*if (str[i] >= 65 && str[i] <= 90 && is_char_operator(str[i + 1])) {
+				std::cout<< str[i + 1] << std::endl;
+			} else if (str[i] == '(' && (str[i + 1] >= 65 || str[i + 1] <= 90)) {
 
 			}
+			i++;
 		}
-	}*/
-
+	}
+*/
 
 private:
 	std::vector<std::string> cleaned_lines;

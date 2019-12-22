@@ -3,9 +3,13 @@
 class InputManager input_data;
 class DataManager data_parser;
 
+
 int parsing(void){
 	data_parser.setterCL(input_data.getterCL());
 	data_parser.print_data();
+	/*for (auto str: data_parser.getterCL()) {
+		data_parser.getRules(str);
+	}*/
 }
 
 int main(int ac, char **av){
