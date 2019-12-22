@@ -6,6 +6,7 @@ class DataManager data_parser;
 int parsing(void){
 	data_parser.setterCL(input_data.getterCL());
 	data_parser.print_data();
+	data_parser.dataType();
 }
 
 int main(int ac, char **av){
@@ -23,6 +24,9 @@ int main(int ac, char **av){
 	catch( const std::invalid_argument& e ) {
 		    std::cout << "ERROR. Invalid numbers of arguement\n";
 		 }
+	catch (char const * line){
+		std::cout << line << std::endl;
+	}
 	return (0);
 }
 
