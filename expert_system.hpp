@@ -11,9 +11,36 @@
 
 class InputManager {
 public:
-	std::string get_input_file(char ac, char **av, std::vector<std::string> input_list);
-	std::string line_cleaner(std::vector<std::string> input_list);
 
+	void line_cleaner() {
+		std::size_t found;
+
+		for (auto i : this->input_list) {
+			found = i.find('#');
+			if (found != -1) {
+				i.resize(found);
+				if (i.size() > 0)
+					this->cleaned_lines.push_back(i);
+			}
+		}
+	}
+
+	void get_input_file(std::string filename){
+		std::string line;
+		std::ifstream input(filename);
+		while(std::getline(input, line)) {
+			//std::cout << line << std::endl;
+			this->input_list.push_back(line);
+		}
+
+	}
+
+	void print_cleaned_lines(){
+	for(auto i : this->cleaned_lines){
+		std::cout << i << std::endl;
+	}
+
+	}
 private:
 	std::vector<std::string> input_list;
 
@@ -32,4 +59,7 @@ class DataManager {
 	std::vector<std::string> Querries;
 
 };
+
+
+
 #endif
