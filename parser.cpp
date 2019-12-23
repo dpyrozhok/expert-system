@@ -6,10 +6,7 @@ class DataManager data_parser;
 
 int parsing(void){
 	data_parser.setterCL(input_data.getterCL());
-	data_parser.print_data();
-	/*for (auto str: data_parser.getterCL()) {
-		data_parser.getRules(str);
-	}*/
+	//data_parser.print_data();
 	data_parser.dataType();
 }
 
@@ -18,7 +15,6 @@ int main(int ac, char **av){
 		if (ac == 2) {
 			input_data.get_input_file(std::string(av[1]));
 			input_data.line_cleaner();
-			//input_data.print_cleaned_lines();
 			parsing();
 		}
 		else{

@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <exception>
 
+#define DEBUG 1
+
 enum DATA_SWITCH{
 	RULES_START = 65,
 	RULES_END = 90,
@@ -126,44 +128,44 @@ public:
 */
 
 	void getRules(std::string line) {
-		for (auto symb: line){
-		std::cout << "CAST " << static_cast<ALLOWED_CHARS>(symb) << std::endl;
-		if ((symb >= LEX_START && symb <= LEX_END) || (static_cast<ALLOWED_CHARS>(symb) ))
-			std::cout << "OK, GO NEXT = (" << symb <<")\n";
-		else
-			std::cout << "BAD SYMBOL, WARNING = (" << symb <<")\n";
-		std::cout << "\n\n";
-
-	}
+#ifdef DEBUG
+		std::cout << "Rules: " << line << std::endl;
+#endif
+	// 	for (auto symb: line){
+	// 	std::cout << "CAST " << static_cast<ALLOWED_CHARS>(symb) << std::endl;
+	// 		if ((symb >= LEX_START && symb <= LEX_END) || (static_cast<ALLOWED_CHARS>(symb) ))
+	// 			std::cout << "OK, GO NEXT = (" << symb <<")\n";
+	// 		else
+	// 			std::cout << "BAD SYMBOL, WARNING = (" << symb <<")\n";
+	// }
 }
 
 	void getFacts(std::string line){
-
+#ifdef DEBUG
+		std::cout << "Facts: " << line << std::endl;
+#endif
 	}
 
 	void getQuerries(std::string line){
-
+#ifdef DEBUG
+		std::cout << "Querries: " << line << std::endl;
+#endif
 	}
 
 	void dataType(){
 		for (auto line: this->cleaned_lines)  { // chech each line
-
-			std::cout << line <<std::endl;
-			std::cout << line[0] <<std::endl;
-			std::cout << static_cast<ALLOWED_CHARS>(line[0]) <<std::endl;
 			int ascii_code = line[0];
 			DATA_SWITCH ascii = DATA_SWITCH(ascii_code);
 
-			std::cout << ascii <<std::endl;
+			// std::cout << ascii <<std::endl;
 			if (FACTS == ascii_code){
 				getFacts(line);
 			}
 			else if (QUERRIES == ascii_code){
 				getQuerries(line);
 			}
-
 			else if (ascii_code >= RULES_START && ascii_code <= RULES_END){
-							getRules(line);
+				getRules(line);
 			}
 			else
 				throw("Error. Bad line\n");
