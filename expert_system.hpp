@@ -242,8 +242,8 @@ int SyntaxRuleChecker(std::string line){
 		if (SyntaxRuleChecker(line) == false){
 			throw("Error. Bad syntax in the rule statements\n");
 		}
-
-
+		//ToDo Validate Facts!
+		//ToDo Starting handling rule statements
 
 }
 
