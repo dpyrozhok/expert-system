@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <exception>
 
-//#define DEBUG 1
+#define DEBUG 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -27,8 +27,8 @@ enum ALLOWED_CHARS{
 	PSKOBKA = 41,
 	PLUS = 43,
 	LUKAZ = 60,
-	RAVNO = 62,
-	PUKAZ = 61,
+	RAVNO = 61,
+	PUKAZ = 62,
 	STEPEN = 94,
 	VOSKL = 33,
 	PIPE = 124
@@ -144,6 +144,8 @@ public:
 int SyntaxRuleChecker(std::string line){
 	if (line == "\n" || line == "")
 		return false;
+	
+	this->Rules.push_back(line);
 	char lastSymb = '\0';
 	int skobki = 0;
 	
@@ -158,6 +160,9 @@ int SyntaxRuleChecker(std::string line){
 			std::cout << "Result: True" << std::endl;
 		else
 			std::cout << "Result: False" << std::endl;
+		std::cout << "character " << i << std::endl;
+		std::cout << "lastSymb " << lastSymb << std::endl;
+
 		std::cout << "\n";
 #endif
 
@@ -204,7 +209,17 @@ int SyntaxRuleChecker(std::string line){
 		}
 		else if (i == RAVNO){
 			std::cout << "Found RAVNO" << std::endl;
-			if (isAlpha(lastSymb))
+			if ( !(isAlpha(lastSymb)) && lastSymb != '<' && lastSymb != ')')
+				return false;
+		}
+		else if (i == PUKAZ){
+			std::cout << "Found PRAVII UKAZATEL (>)" << std::endl;
+			if (lastSymb != '=')
+				return false;
+		}
+		else if (i == LUKAZ){
+			std::cout << "Found LEVII UKAZATEL (<)" << std::endl;
+			if (isAlpha(lastSymb) == false && lastSymb != ')')
 				return false;
 		}
 		else{
@@ -214,7 +229,7 @@ int SyntaxRuleChecker(std::string line){
 
 		lastSymb = i;
 	}
-	if (skobki > 0 || lastSymb == "!"){
+	if (skobki > 0 || lastSymb == '!'){
 		return false;
 	}
 	return true;
