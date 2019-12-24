@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <exception>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -30,7 +30,8 @@ enum ALLOWED_CHARS{
 	RAVNO = 62,
 	PUKAZ = 61,
 	STEPEN = 94,
-	VOSKL = 33
+	VOSKL = 33,
+	PIPE = 124
 };
 
 bool is_char_operator(char c) {
@@ -115,6 +116,17 @@ public:
 		return this->cleaned_lines;
 	}
 
+
+	bool isAlpha(char c){
+#ifdef DEBUG
+		std::cout << std::endl<<"Parsing char: " << c << std::endl;
+#endif
+		//IsUpperCaseLetter?
+		if (c >= RULES_START && c <= RULES_END)
+			return true;
+		return false;
+
+}
 /*	void getRules(std::string str) {
 		int i = 0;
 		while (str[i]){*/
@@ -127,45 +139,131 @@ public:
 	}
 */
 
-	void getRules(std::string line) {
+
+
+int SyntaxRuleChecker(std::string line){
+	if (line == "\n" || line == "")
+		return false;
+	char lastSymb = '\0';
+	int skobki = 0;
+	
+	std::cout << "Entered SyntaxRuleChecker Loop" << std::endl;
+	for (auto i: line){
+#ifdef DEBUG
+		/* 
+		DEBUG PRINTS
+		*/
+		std::cout << "Calling isAlpha";
+		if (isAlpha(i))
+			std::cout << "Result: True" << std::endl;
+		else
+			std::cout << "Result: False" << std::endl;
+		std::cout << "\n";
+#endif
+
+
+		if (i == LSKOBKA){
+			std::cout << "Found LSKOBKA" << std::endl;
+			if (isAlpha(lastSymb))
+				return false;
+			skobki++;
+		}
+		else if (i == PSKOBKA){
+			std::cout << "Found PSKOBKA" << std::endl;
+			if (skobki <= 0)
+				return false;
+			if (!(isAlpha(lastSymb)) && !(lastSymb == ')')) 
+				return false;
+			skobki--;
+		}
+		else if (i == VOSKL){
+			std::cout << "Found VOSKL" << std::endl;
+			if (isAlpha(lastSymb))
+				return false;
+		}
+		else if (i == PLUS){
+			std::cout << "Found PLUS" << std::endl;
+			if ((isAlpha(lastSymb) == false) && (lastSymb != ')'))
+				return false;
+		}
+		else if (i == PIPE){
+			std::cout << "Found PIPE" << std::endl;
+			if ( !(isAlpha(lastSymb)) )
+				return false;
+		}
+		else if (i == STEPEN){
+			std::cout << "Found PIPE" << std::endl;			
+			if ( !(isAlpha(lastSymb)) )
+				return false;
+		}
+		//TWO LETTERS IN A ROW WITHOUT SPECIAL SYMB: A + BBBBBB
+		else if (isAlpha(i)){
+			std::cout << "Found LETTER" << std::endl;
+			if (isAlpha(lastSymb))
+				return false;
+		}
+		else if (i == RAVNO){
+			std::cout << "Found RAVNO" << std::endl;
+			if (isAlpha(lastSymb))
+				return false;
+		}
+		else{
+			std::cout << "Found UNDEFINED VARIANT" << std::endl;			
+			return false;
+		}
+
+		lastSymb = i;
+	}
+	if (skobki > 0 || lastSymb == "!"){
+		return false;
+	}
+	return true;
+}
+
+	void validRules(std::string line) {
 #ifdef DEBUG
 		std::cout << "Rules: " << line << std::endl;
 #endif
-	// 	for (auto symb: line){
-	// 	std::cout << "CAST " << static_cast<ALLOWED_CHARS>(symb) << std::endl;
-	// 		if ((symb >= LEX_START && symb <= LEX_END) || (static_cast<ALLOWED_CHARS>(symb) ))
-	// 			std::cout << "OK, GO NEXT = (" << symb <<")\n";
-	// 		else
-	// 			std::cout << "BAD SYMBOL, WARNING = (" << symb <<")\n";
-	// }
+		if (SyntaxRuleChecker(line) == false){
+			throw("Error. Bad syntax in the rule statements\n");
+		}
+
+
+
 }
 
-	void getFacts(std::string line){
+	void validFacts(std::string line){
 #ifdef DEBUG
 		std::cout << "Facts: " << line << std::endl;
 #endif
 	}
 
-	void getQuerries(std::string line){
+	void validQuerries(std::string line){
 #ifdef DEBUG
 		std::cout << "Querries: " << line << std::endl;
 #endif
 	}
 
 	void dataType(){
+		/*
+		Function for validaton each line syntax and etc stuff according to specific rules;
+		-Rules
+		-Facts
+		-Querries
+		*/
 		for (auto line: this->cleaned_lines)  { // chech each line
 			int ascii_code = line[0];
 			DATA_SWITCH ascii = DATA_SWITCH(ascii_code);
 
 			// std::cout << ascii <<std::endl;
 			if (FACTS == ascii_code){
-				getFacts(line);
+				validFacts(line);
 			}
 			else if (QUERRIES == ascii_code){
-				getQuerries(line);
+				validQuerries(line);
 			}
 			else if (ascii_code >= RULES_START && ascii_code <= RULES_END){
-				getRules(line);
+				validRules(line);
 			}
 			else
 				throw("Error. Bad line\n");
