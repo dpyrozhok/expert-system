@@ -102,10 +102,10 @@ private:
 
 };
 
-class DataManager {
+class SyntaxChecker {
 
 public:
-	DataManager(){
+	SyntaxChecker(){
 		this->cleaned_lines = {};
 		this->isQuestions = false;
 		this->isFacts = false;
@@ -373,12 +373,25 @@ int SyntaxRuleChecker(std::string line){
 			else
 				throw("Error. Bad line\n");
 		}
-		print_Rules();
-		print_Facts();
-		print_Querries();
+		//print_Rules();
+		//print_Facts();
+		//print_Querries();
 
 }
 
+	std::vector<std::string> getterQuerry(){
+		return (this->Querries);
+	}
+
+
+	std::vector<std::string> getterRules(){
+		return (this->Rules);
+	}
+
+
+	std::vector<std::string> getterFacts(){
+		return (this->Facts);
+	}
 
 private:
 	std::vector<std::string> cleaned_lines;
@@ -448,10 +461,19 @@ private:
 
 };
 
-class FactsManager{
+class RuleManager{
 public:
+	void setterRulesList(std::vector<std::string> in){
+		this->Rules = in;
+	}
+
+	void printRules(){
+	std::cout << "RuleManager object" << std::endl;
+		for (auto i: this->Rules)
+			std::cout << i << std::endl;
+	}
 
 private:
-
+	std::vector<std::string> Rules;
 };
 #endif
