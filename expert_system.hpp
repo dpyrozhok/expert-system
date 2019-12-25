@@ -108,7 +108,8 @@ public:
 	DataManager(){
 		this->cleaned_lines = {};
 		this->isQuestions = false;
-		this->IsFacts = false;
+		this->isFacts = false;
+		this->isRules = false;
 }
 	int print_data(void){
 		for (auto i: this->cleaned_lines){
@@ -153,10 +154,9 @@ public:
 int SyntaxRuleChecker(std::string line){
 	if (line == "\n" || line == "")
 		return false;
-	
-	this->Rules.push_back(line);
 	char lastSymb = '\0';
 	int skobki = 0;
+
 #ifdef DEBUG
 	std::cout << "Entered SyntaxRuleChecker Loop" << std::endl;
 #endif
@@ -268,41 +268,87 @@ int SyntaxRuleChecker(std::string line){
 }
 
 	void validRules(std::string line) {
+		if (isFacts == true)
+			throw("Error. Rules should be defined before facts");
+		if (isQuestions == true)
+			throw("Error. Rules should be defined before querries");
+		isRules = true;
 #ifdef DEBUG
 		std::cout << "==========================" << std::endl;
-		std::cout << "Rules: " << line << std::endl;
+		std::cout << "Rule: " << line << std::endl;
 		std::cout << "==========================" << std::endl;
 #endif
 		if (SyntaxRuleChecker(line) == false){
 			throw("Error. Bad syntax in the rule statements\n");
 		}
-
+		this->Rules.push_back(line);
 		//ToDo Validate Facts!
 		//ToDo Starting handling rule statements
 
 }
 
+	bool SyntaxFactsAndQuerriesChecker(std::string line){
+		for (auto i: line){
+			if (isAlpha(i))
+				continue;
+			else
+				return false;
+		}
+		return true;
+	}
+	
 	void validFacts(std::string line){
-		if (IsFacts == true)
+		if (isRules == false)
+			throw("Error. Rules should be defined");
+		if (isFacts == true)
 			throw("Error. Already defined facts");
-		this->IsFacts = true;
+		this->isFacts = true;
+
+		if (SyntaxFactsAndQuerriesChecker(line.erase(0,1)) == false)
+			throw ("Error. Crap in the fact statement");
+
+		this->Facts.push_back(line);
+
 #ifdef DEBUG
 		std::cout << "Facts: " << line << std::endl;
 #endif
+
+
 	}
 
 	void validQuerries(std::string line){
 		if (isQuestions == true)
 			throw("Error. Already defined querries");
-		if (!IsFacts)
+		if (!isFacts)
 			throw("Error. Querries should be defined after facts");
 
 		this->isQuestions = true;
+
+		if (SyntaxFactsAndQuerriesChecker(line.erase(0,1)) == false)
+			throw ("Error. Crap in the querries statement");
+
+		this->Querries.push_back(line);
+
 #ifdef DEBUG
 		std::cout << "Querries: " << line << std::endl;
 #endif
 	}
 
+	void print_Rules(){
+		for (auto i: this->Rules)
+			std::cout << i << std::endl;
+	}
+
+	void print_Facts(){
+		for (auto i: this->Facts)
+			std::cout << i << std::endl;
+	}
+
+	void print_Querries(){
+		for (auto i: this->Querries)
+			std::cout << i << std::endl;		
+	}
+	
 	void dataType(){
 		/*
 		Function for validaton each line syntax and etc stuff according to specific rules;
@@ -327,6 +373,10 @@ int SyntaxRuleChecker(std::string line){
 			else
 				throw("Error. Bad line\n");
 		}
+		print_Rules();
+		print_Facts();
+		print_Querries();
+
 }
 
 
@@ -342,8 +392,9 @@ private:
 	int querries_qty;
 	std::vector<std::string> Querries;
 
-	bool IsFacts;
-	bool isQuestions; 
+	bool isFacts;
+	bool isQuestions;
+	bool isRules;
 };
 
 // std::vector<char> alphabet(26);
@@ -394,6 +445,13 @@ initialization of the alphabet
 private:
 	// this is a dictionary where the keys are Letters and the values True/False
 	std::map<char, bool> alphabet_status;
+
+};
+
+class FactsManager{
+public:
+
+private:
 
 };
 #endif
