@@ -1,6 +1,7 @@
 #ifndef EXPERT_SYSTEM_HPP
 #define EXPERT_SYSTEM_HPP
 
+//#include <utility> 
 #include <cstdio>
 #include <fstream>
 #include <cstdlib>
@@ -10,8 +11,14 @@
 #include <vector>
 #include <stdexcept>
 #include <exception>
-
-#define DEBUG 1
+#include <experimental/numeric>
+#include <map>
+#include <stdio.h>
+#include <iostream>
+#include <map>
+#include <string>
+#include <iterator>
+//#define DEBUG 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -100,6 +107,8 @@ class DataManager {
 public:
 	DataManager(){
 		this->cleaned_lines = {};
+		this->isQuestions = false;
+		this->IsFacts = false;
 }
 	int print_data(void){
 		for (auto i: this->cleaned_lines){
@@ -148,8 +157,9 @@ int SyntaxRuleChecker(std::string line){
 	this->Rules.push_back(line);
 	char lastSymb = '\0';
 	int skobki = 0;
-	
+#ifdef DEBUG
 	std::cout << "Entered SyntaxRuleChecker Loop" << std::endl;
+#endif
 	for (auto i: line){
 #ifdef DEBUG
 		/* 
@@ -168,13 +178,17 @@ int SyntaxRuleChecker(std::string line){
 
 
 		if (i == LSKOBKA){
+#ifdef DEBUG
 			std::cout << "Found LSKOBKA" << std::endl;
+#endif
 			if (isAlpha(lastSymb))
 				return false;
 			skobki++;
 		}
 		else if (i == PSKOBKA){
+#ifdef DEBUG
 			std::cout << "Found PSKOBKA" << std::endl;
+#endif
 			if (skobki <= 0)
 				return false;
 			if (!(isAlpha(lastSymb)) && !(lastSymb == ')')) 
@@ -182,48 +196,66 @@ int SyntaxRuleChecker(std::string line){
 			skobki--;
 		}
 		else if (i == VOSKL){
+#ifdef DEBUG
 			std::cout << "Found VOSKL" << std::endl;
+#endif
 			if (isAlpha(lastSymb))
 				return false;
 		}
 		else if (i == PLUS){
+#ifdef DEBUG
 			std::cout << "Found PLUS" << std::endl;
+#endif
 			if ((isAlpha(lastSymb) == false) && (lastSymb != ')'))
 				return false;
 		}
 		else if (i == PIPE){
+#ifdef DEBUG
 			std::cout << "Found PIPE" << std::endl;
+#endif
 			if ( !(isAlpha(lastSymb)) )
 				return false;
 		}
 		else if (i == STEPEN){
+#ifdef DEBUG
 			std::cout << "Found PIPE" << std::endl;			
+#endif
 			if ( !(isAlpha(lastSymb)) )
 				return false;
 		}
 		//TWO LETTERS IN A ROW WITHOUT SPECIAL SYMB: A + BBBBBB
 		else if (isAlpha(i)){
+#ifdef DEBUG
 			std::cout << "Found LETTER" << std::endl;
+#endif
 			if (isAlpha(lastSymb))
 				return false;
 		}
 		else if (i == RAVNO){
+#ifdef DEBUG
 			std::cout << "Found RAVNO" << std::endl;
+#endif
 			if ( !(isAlpha(lastSymb)) && lastSymb != '<' && lastSymb != ')')
 				return false;
 		}
 		else if (i == PUKAZ){
+#ifdef DEBUG
 			std::cout << "Found PRAVII UKAZATEL (>)" << std::endl;
+#endif
 			if (lastSymb != '=')
 				return false;
 		}
 		else if (i == LUKAZ){
+#ifdef DEBUG
 			std::cout << "Found LEVII UKAZATEL (<)" << std::endl;
+#endif
 			if (isAlpha(lastSymb) == false && lastSymb != ')')
 				return false;
 		}
 		else{
+#ifdef DEBUG
 			std::cout << "Found UNDEFINED VARIANT" << std::endl;			
+#endif		
 			return false;
 		}
 
@@ -237,23 +269,35 @@ int SyntaxRuleChecker(std::string line){
 
 	void validRules(std::string line) {
 #ifdef DEBUG
+		std::cout << "==========================" << std::endl;
 		std::cout << "Rules: " << line << std::endl;
+		std::cout << "==========================" << std::endl;
 #endif
 		if (SyntaxRuleChecker(line) == false){
 			throw("Error. Bad syntax in the rule statements\n");
 		}
+
 		//ToDo Validate Facts!
 		//ToDo Starting handling rule statements
 
 }
 
 	void validFacts(std::string line){
+		if (IsFacts == true)
+			throw("Error. Already defined facts");
+		this->IsFacts = true;
 #ifdef DEBUG
 		std::cout << "Facts: " << line << std::endl;
 #endif
 	}
 
 	void validQuerries(std::string line){
+		if (isQuestions == true)
+			throw("Error. Already defined querries");
+		if (!IsFacts)
+			throw("Error. Querries should be defined after facts");
+
+		this->isQuestions = true;
 #ifdef DEBUG
 		std::cout << "Querries: " << line << std::endl;
 #endif
@@ -298,6 +342,58 @@ private:
 	int querries_qty;
 	std::vector<std::string> Querries;
 
+	bool IsFacts;
+	bool isQuestions; 
 };
 
+// std::vector<char> alphabet(26);
+// std::iota(alphabet.begin(), alphabet.end(), 'A');
+
+class DecisionManager
+{
+public:
+
+	DecisionManager(){
+/*
+initialization of the alphabet
+*/
+	this->alphabet_status.insert(std::make_pair('A', false));
+	this->alphabet_status.insert(std::make_pair('B', false));
+	this->alphabet_status.insert(std::make_pair('C', false)); 
+	this->alphabet_status.insert(std::make_pair('D', false)); 
+	this->alphabet_status.insert(std::make_pair('E', false)); 
+	this->alphabet_status.insert(std::make_pair('F', false)); 
+	this->alphabet_status.insert(std::make_pair('G', false)); 
+	this->alphabet_status.insert(std::make_pair('H', false)); 
+	this->alphabet_status.insert(std::make_pair('I', false)); 
+	this->alphabet_status.insert(std::make_pair('J', false)); 
+	this->alphabet_status.insert(std::make_pair('K', false)); 
+	this->alphabet_status.insert(std::make_pair('L', false)); 
+	this->alphabet_status.insert(std::make_pair('M', false)); 
+	this->alphabet_status.insert(std::make_pair('N', false)); 
+	this->alphabet_status.insert(std::make_pair('O', false)); 
+	this->alphabet_status.insert(std::make_pair('P', false)); 
+	this->alphabet_status.insert(std::make_pair('Q', false)); 
+	this->alphabet_status.insert(std::make_pair('R', false)); 
+	this->alphabet_status.insert(std::make_pair('S', false)); 
+	this->alphabet_status.insert(std::make_pair('T', false)); 
+	this->alphabet_status.insert(std::make_pair('U', false)); 
+	this->alphabet_status.insert(std::make_pair('V', false)); 
+	this->alphabet_status.insert(std::make_pair('W', false)); 
+	this->alphabet_status.insert(std::make_pair('X', false)); 
+	this->alphabet_status.insert(std::make_pair('Y', false)); 
+	this->alphabet_status.insert(std::make_pair('Z', false)); 
+};
+	void print_alpha(){
+		std::map<char, bool>::iterator itr; 
+		for (itr = this->alphabet_status.begin(); itr != this->alphabet_status.end(); ++itr){
+			std::cout << itr->first << "\t" << itr->second << std::endl;
+		}
+	}
+
+private:
+	// this is a dictionary where the keys are Letters and the values True/False
+	std::map<char, bool> alphabet_status;
+
+};
 #endif

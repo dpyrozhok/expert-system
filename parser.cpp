@@ -2,12 +2,13 @@
 
 class InputManager input_data;
 class DataManager data_parser;
-
+class DecisionManager info_storage;
 
 int parsing(void){
 	data_parser.setterCL(input_data.getterCL());
 	//data_parser.print_data();
 	data_parser.dataType();
+	info_storage.print_alpha();
 }
 
 int main(int ac, char **av){
