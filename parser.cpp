@@ -10,7 +10,22 @@ int parsing(void){
 	data_parser.dataType();
 	rule_manager.setterRulesList(data_parser.getterRules());
 	rule_manager.printRules();
-	// info_storage.print_alpha();
+
+	std::cout << "======================================\n";
+	std::cout << "Inititialize final dict\n";
+	std::cout << "======================================\n";
+
+	info_storage.print_alpha();
+	info_storage.setterInitF(data_parser.getterFacts());
+
+	info_storage.ApplyInitFacts();
+	std::cout << "======================================\n";
+	std::cout << "Applied init facts to the dictionary\n";
+	std::cout << "======================================\n";
+
+	info_storage.print_alpha();
+
+
 }
 
 int main(int ac, char **av){

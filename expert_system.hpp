@@ -376,8 +376,7 @@ int SyntaxRuleChecker(std::string line){
 		//print_Rules();
 		//print_Facts();
 		//print_Querries();
-
-}
+	}
 
 	std::vector<std::string> getterQuerry(){
 		return (this->Querries);
@@ -455,10 +454,41 @@ initialization of the alphabet
 		}
 	}
 
+	void setterAlpha(char letter, bool status){
+		std::map<char, bool>::iterator it;
+		it = this->alphabet_status.find(letter);
+		if (it != this->alphabet_status.end())
+			it->second = status;
+	}
+
+	void setterAlpha(char letter){
+		std::map<char, bool>::iterator it;
+		it = this->alphabet_status.find(letter);
+		if (it != this->alphabet_status.end())
+			it->second = true;
+	
+	}
+	
+	void ApplyInitFacts(){
+		std::string line;
+		line = this->initFacts[0];
+		for (auto i: line){
+			setterAlpha(i);
+		}
+	}
+	void setterInitF(std::vector<std::string> inF){
+		this->initFacts = inF;
+		for (auto i: this->initFacts){
+#ifdef DEBUG
+			std::cout << "copied initial facts :" << i << std::endl;  
+#endif
+		}
+	}
+
 private:
 	// this is a dictionary where the keys are Letters and the values True/False
 	std::map<char, bool> alphabet_status;
-
+	std::vector<std::string> initFacts;
 };
 
 class RuleManager{
