@@ -137,19 +137,6 @@ public:
 		return false;
 
 }
-/*	void getRules(std::string str) {
-		int i = 0;
-		while (str[i]){*/
-			/* Rule one - after each letter should goes operator */
-			/*if (str[i] >= 65 && str[i] <= 90 && is_char_operator(str[i + 1])) {
-				std::cout<< str[i + 1] << std::endl;
-			} else if (str[i] == '(' && (str[i + 1] >= 65 || str[i + 1] <= 90)) {
-						i++;
-		}
-	}
-*/
-
-
 
 int SyntaxRuleChecker(std::string line){
 	if (line == "\n" || line == "")
@@ -489,6 +476,40 @@ private:
 	// this is a dictionary where the keys are Letters and the values True/False
 	std::map<char, bool> alphabet_status;
 	std::vector<std::string> initFacts;
+};
+
+class ParsedRuleList{
+	ParsedRuleList(){
+		bidirectional = false;
+}
+private:
+	//input rule
+	//will massive with rules and each rule will be parsed
+	std::string rule;
+
+	//splitted rules
+	std::string rside;
+	std::string lside;
+
+	//Involved symbols upper case letters
+	std::vector<char> invSymb;
+	std::vector<char> invL;
+	std::vector<char> invR;
+
+	// Involved Operators ('+, - etc')
+	std::vector<char> invOperLeft;
+	std::vector<char> invOperRight;
+
+	// sorted operators
+	std::vector<char> prioritOperators;
+
+	//changed equations according to prioritOperators;
+	std::string changed_rside;
+	std::string changed_lside;
+
+	//Bonus with bidirectional <=>
+	//Not only =>
+	bool bidirectional;
 };
 
 class RuleManager{
