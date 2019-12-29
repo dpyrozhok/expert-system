@@ -18,7 +18,7 @@
 #include <map>
 #include <string>
 #include <iterator>
-//#define DEBUG 1
+#define DEBUG 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -199,7 +199,7 @@ int SyntaxRuleChecker(std::string line){
 #ifdef DEBUG
 			std::cout << "Found VOSKL" << std::endl;
 #endif
-			if (isAlpha(lastSymb))
+			if (isAlpha(lastSymb))// to add lastSymb can be '\0'
 				return false;
 		}
 		else if (i == PLUS){
@@ -209,7 +209,7 @@ int SyntaxRuleChecker(std::string line){
 			if ((isAlpha(lastSymb) == false) && (lastSymb != ')'))
 				return false;
 		}
-		else if (i == PIPE){
+		else if (i == PIPE){ // or can be ')'
 #ifdef DEBUG
 			std::cout << "Found PIPE" << std::endl;
 #endif
@@ -261,7 +261,7 @@ int SyntaxRuleChecker(std::string line){
 
 		lastSymb = i;
 	}
-	if (skobki > 0 || lastSymb == '!'){
+	if (skobki > 0 && (isAlpha(lastSymb) == false || lastSymb != ')')){
 		return false;
 	}
 	return true;
@@ -367,7 +367,7 @@ int SyntaxRuleChecker(std::string line){
 			else if (QUERRIES == ascii_code){
 				validQuerries(line);
 			}
-			else if (ascii_code >= RULES_START && ascii_code <= RULES_END){
+			else if ((ascii_code >= RULES_START && ascii_code <= RULES_END) || (ALLOWED_CHARS)ascii == LSKOBKA){
 				validRules(line);
 			}
 			else
@@ -503,7 +503,5 @@ public:
 			std::cout << i << std::endl;
 	}
 
-private:
-	std::vector<std::string> Rules;
 };
 #endif
