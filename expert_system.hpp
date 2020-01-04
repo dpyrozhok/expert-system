@@ -18,7 +18,10 @@
 #include <map>
 #include <string>
 #include <iterator>
-#define DEBUG 1
+
+#define DEBUG_READING 1
+#define DEBUG_PARSING 0
+#define DEBUG_RULES_WORK 0
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -54,6 +57,20 @@ public:
 		this->input_list = {};
 		this->cleaned_lines = {};
 	}
+
+	void print_cleaned_lines() {
+		std::cout << "======================================\n";
+		std::cout<< " Cleaned lines"<<std::endl;
+		std::cout << "======================================\n";
+		for(auto i : this->cleaned_lines){
+			std::cout << i << std::endl;
+		}
+	}
+
+	std::vector<std::string> getterCL(){
+		return this->cleaned_lines;
+	}
+
 	void line_cleaner() {
 		std::size_t found;
 
@@ -78,23 +95,19 @@ public:
 	void get_input_file(std::string filename){
 		std::string line;
 		std::ifstream input(filename);
+#if DEBUG_READING
+		std::cout << "======================================\n";
+		std::cout<< " Reading input file"<<std::endl;
+		std::cout << "======================================\n";
+		#endif
 		while(std::getline(input, line)) {
-			//std::cout << line << std::endl;
 			this->input_list.push_back(line);
+#if DEBUG_READING
+			std::cout<<line<<std::endl;
+#endif
 		}
 	}
 
-	void print_cleaned_lines(){
-	for(auto i : this->cleaned_lines){
-		std::cout << i << std::endl;
-	}
-
-	}
-//	std::vector<std::string> cleaned_lines;
-
-	std::vector<std::string> getterCL(){
-		return this->cleaned_lines;
-	}
 private:
 	std::vector<std::string> input_list;
 
@@ -128,7 +141,7 @@ public:
 
 
 	bool isAlpha(char c){
-#ifdef DEBUG
+#if DEBUG_PARSING
 		std::cout << std::endl<<"Parsing char: " << c << std::endl;
 #endif
 		//IsUpperCaseLetter?
@@ -144,13 +157,13 @@ int SyntaxRuleChecker(std::string line){
 	char lastSymb = '\0';
 	int skobki = 0;
 
-#ifdef DEBUG
+#if DEBUG_PARSING
 	std::cout << "Entered SyntaxRuleChecker Loop" << std::endl;
 #endif
 	for (auto i: line){
-#ifdef DEBUG
+#if DEBUG_PARSING
 		/* 
-		DEBUG PRINTS
+		DEBUG_PARSING PRINTS
 		*/
 		std::cout << "Calling isAlpha";
 		if (isAlpha(i))
@@ -165,7 +178,7 @@ int SyntaxRuleChecker(std::string line){
 
 
 		if (i == LSKOBKA){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found LSKOBKA" << std::endl;
 #endif
 			if (isAlpha(lastSymb))
@@ -173,7 +186,7 @@ int SyntaxRuleChecker(std::string line){
 			skobki++;
 		}
 		else if (i == PSKOBKA){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found PSKOBKA" << std::endl;
 #endif
 			if (skobki <= 0)
@@ -183,28 +196,28 @@ int SyntaxRuleChecker(std::string line){
 			skobki--;
 		}
 		else if (i == VOSKL){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found VOSKL" << std::endl;
 #endif
 			if (isAlpha(lastSymb))// to add lastSymb can be '\0'
 				return false;
 		}
 		else if (i == PLUS){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found PLUS" << std::endl;
 #endif
 			if ((isAlpha(lastSymb) == false) && (lastSymb != ')'))
 				return false;
 		}
 		else if (i == PIPE){ // or can be ')'
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found PIPE" << std::endl;
 #endif
 			if ( !(isAlpha(lastSymb)) )
 				return false;
 		}
 		else if (i == STEPEN){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found PIPE" << std::endl;			
 #endif
 			if ( !(isAlpha(lastSymb)) )
@@ -212,35 +225,35 @@ int SyntaxRuleChecker(std::string line){
 		}
 		//TWO LETTERS IN A ROW WITHOUT SPECIAL SYMB: A + BBBBBB
 		else if (isAlpha(i)){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found LETTER" << std::endl;
 #endif
 			if (isAlpha(lastSymb))
 				return false;
 		}
 		else if (i == RAVNO){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found RAVNO" << std::endl;
 #endif
 			if ( !(isAlpha(lastSymb)) && lastSymb != '<' && lastSymb != ')')
 				return false;
 		}
 		else if (i == PUKAZ){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found PRAVII UKAZATEL (>)" << std::endl;
 #endif
 			if (lastSymb != '=')
 				return false;
 		}
 		else if (i == LUKAZ){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found LEVII UKAZATEL (<)" << std::endl;
 #endif
 			if (isAlpha(lastSymb) == false && lastSymb != ')')
 				return false;
 		}
 		else{
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "Found UNDEFINED VARIANT" << std::endl;			
 #endif		
 			return false;
@@ -260,7 +273,7 @@ int SyntaxRuleChecker(std::string line){
 		if (isQuestions == true)
 			throw("Error. Rules should be defined before querries");
 		isRules = true;
-#ifdef DEBUG
+#if DEBUG_PARSING
 		std::cout << "==========================" << std::endl;
 		std::cout << "Rule: " << line << std::endl;
 		std::cout << "==========================" << std::endl;
@@ -296,7 +309,7 @@ int SyntaxRuleChecker(std::string line){
 
 		this->Facts.push_back(line);
 
-#ifdef DEBUG
+#if DEBUG_PARSING
 		std::cout << "Facts: " << line << std::endl;
 #endif
 
@@ -316,7 +329,7 @@ int SyntaxRuleChecker(std::string line){
 
 		this->Querries.push_back(line);
 
-#ifdef DEBUG
+#if DEBUG_PARSING
 		std::cout << "Querries: " << line << std::endl;
 #endif
 	}
@@ -466,7 +479,7 @@ initialization of the alphabet
 	void setterInitF(std::vector<std::string> inF){
 		this->initFacts = inF;
 		for (auto i: this->initFacts){
-#ifdef DEBUG
+#if DEBUG_PARSING
 			std::cout << "copied initial facts :" << i << std::endl;  
 #endif
 		}
@@ -524,5 +537,7 @@ public:
 			std::cout << i << std::endl;
 	}
 
+private:
+	std::vector<std::string> Rules;
 };
 #endif
