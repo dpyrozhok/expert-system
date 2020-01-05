@@ -17,6 +17,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <stack> 
 #include <iterator>
 //#define DEBUG 1
 
@@ -479,9 +480,57 @@ private:
 };
 
 class ParsedRuleList{
+
+public:
 	ParsedRuleList(){
 		bidirectional = false;
 }
+
+void convertToRPN(std::string expression)// to add &
+{
+	// expression = "C|!G+Z+(A+B)+D"
+    std::stack<char> s;
+    std::string postfix;
+    for (auto tok : expression) {
+        if (std::isupper(tok)) {
+            postfix += tok;
+        } else if (tok == '(') {
+            s.emplace(tok);
+        } else if (tok == ')') {
+            while (!s.empty()) {
+                tok = s.top();
+                s.pop();
+                if (tok == '(') {
+                    break;
+                }
+                postfix += tok;
+            }
+        } else {
+            while (!s.empty() && precedence(tok) <= precedence(s.top())) {
+                postfix += s.top();
+                s.pop();
+            }
+            s.emplace(tok);
+        }
+    }
+    while (!s.empty()) {
+        postfix += s.top();
+        s.pop();
+    }
+    expression = postfix;
+    std::cout << expression;
+}
+
+int precedence(char x)
+{
+    if (x == '(') {
+        return 0;
+    } else if (x != '!') {
+        return 1;
+    }
+    return 2;
+}
+
 private:
 	//input rule
 	//will massive with rules and each rule will be parsed
