@@ -21,8 +21,9 @@
 #include <iterator>
 
 #define DEBUG_READING 1
-#define DEBUG_PARSING 0
-#define DEBUG_RULES_WORK 0
+#define DEBUG_PARSING 1
+#define DEBUG_RULES_WORK 1
+#define DEBUG_SOLVER 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -477,6 +478,11 @@ initialization of the alphabet
 			setterAlpha(i);
 		}
 	}
+
+	std::string GetterInitFacts(){
+		return this->initFacts[0];
+	}
+
 	void setterInitF(std::vector<std::string> inF){
 		this->initFacts = inF;
 		for (auto i: this->initFacts){
@@ -495,13 +501,41 @@ private:
 class ParsedRuleList{
 
 public:
+	//input rule
+	//will massive with rules and each rule will be parsed
+	std::string rule;
+
+	//splitted rules
+	std::string rside;
+	std::string lside;
+
+	//Involved symbols upper case letters
+	std::vector<char> invSymb;
+	std::vector<char> invL;
+	std::vector<char> invR;
+
+	// Involved Operators ('+, - etc')
+	std::vector<char> invOperLeft;
+	std::vector<char> invOperRight;
+
+	// sorted operators
+	std::vector<char> prioritOperators;
+
+	//changed equations according to prioritOperators;
+	std::string changed_rside;
+	std::string changed_lside;
+
+	//Bonus with bidirectional <=>
+	//Not only =>
+	bool bidirectional;
+
 	ParsedRuleList(){
 		bidirectional = false;
 }
 
-void convertToRPN(std::string expression)// to add &
+std::string convertToRPN(std::string expression)// to add &
 {
-	// expression = "C|!G+Z+(A+B)+D"
+	//expression = "C|!G+Z+(A+B)+D";
     std::stack<char> s;
     std::string postfix;
     for (auto tok : expression) {
@@ -531,7 +565,8 @@ void convertToRPN(std::string expression)// to add &
         s.pop();
     }
     expression = postfix;
-    std::cout << expression;
+    std::cout << "Converted to RPN: " << expression << std::endl;
+    return expression;
 }
 
 int precedence(char x)
@@ -545,33 +580,6 @@ int precedence(char x)
 }
 
 private:
-	//input rule
-	//will massive with rules and each rule will be parsed
-	std::string rule;
-
-	//splitted rules
-	std::string rside;
-	std::string lside;
-
-	//Involved symbols upper case letters
-	std::vector<char> invSymb;
-	std::vector<char> invL;
-	std::vector<char> invR;
-
-	// Involved Operators ('+, - etc')
-	std::vector<char> invOperLeft;
-	std::vector<char> invOperRight;
-
-	// sorted operators
-	std::vector<char> prioritOperators;
-
-	//changed equations according to prioritOperators;
-	std::string changed_rside;
-	std::string changed_lside;
-
-	//Bonus with bidirectional <=>
-	//Not only =>
-	bool bidirectional;
 };
 
 class RuleManager{
@@ -584,6 +592,10 @@ public:
 	std::cout << "RuleManager object" << std::endl;
 		for (auto i: this->Rules)
 			std::cout << i << std::endl;
+	}
+
+	std::vector<std::string> getRu(){
+		return this->Rules;
 	}
 
 private:
