@@ -33,15 +33,123 @@ FEW NOTES:
 	// std::cout << rule_list[0].rule;
 
 */
-int process_rules(void){
-	std::string init_facts = info_storage.GetterInitFacts();
-	std::cout << "Init facts that should be true: " << init_facts << std::endl; //truth to start
-	std::vector<ParsedRuleList> rule_list; //conatiner with class objects(ParsedRulesList)
-	ParsedRuleList test; //class to process each line with that you will manage solver
 
+int precedence(char x)
+{
+    if (x == '(') {
+        return 0;
+    } else if (x != '!') {
+        return 1;
+    }
+    return 2;
+}
+
+std::string convertToRPN(std::string expression)// to add &
+{
+	//expression = "C|!G+Z+(A+B)+D";
+    std::stack<char> s;
+    std::string postfix;
+    for (auto tok : expression) {
+        if (std::isupper(tok)) {
+            postfix += tok;
+        } else if (tok == '(') {
+            s.emplace(tok);
+        } else if (tok == ')') {
+            while (!s.empty()) {
+                tok = s.top();
+                s.pop();
+                if (tok == '(') {
+                    break;
+                }
+                postfix += tok;
+            }
+        } else {
+            while (!s.empty() && precedence(tok) <= precedence(s.top())) {
+                postfix += s.top();
+                s.pop();
+            }
+            s.emplace(tok);
+        }
+    }
+    while (!s.empty()) {
+        postfix += s.top();
+        s.pop();
+    }
+    expression = postfix;
+    std::cout << "Converted to RPN: " << expression << std::endl;
+    return expression;
+}
+
+std::set<char> GetInvolvedChars(std::string str){
+
+	std::set<char> used_chars;
+	std::set<char> inverted_ch;
+//GET LIST WITH INVOLVED CHARS
+	for (auto i: str){
+		if (i >= LEX_START && i <= LEX_END){
+			used_chars.insert(i);
+		}
+		else
+			continue;
+	}
+
+/*
+// i think we can don't handle char:(!), because it will automatically handled by final expression with true/false.
+// 	for (auto i: str){
+// 		if (i == VOSKL){
+// 			std::cout << "FIND !VOSKL: " << i << std::endl;
+// 		}
+// 		else
+// 			continue;
+// 	}
+*/
+
+	std::cout << "Ivolved chars in the string" << std::endl;
+  	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
+  	  std::cout << *it;
+	std::cout << std::endl;
+
+	return used_chars;
+}
+
+void PrintSet(std::set<char> used_chars){
+	std::cout << "PRINT SET, HELLO" << std::endl;
+	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
+  	  std::cout << *it;
+	std::cout << std::endl;
+}
+
+std::set<char> ConvertToSet(std::string str){
+	
+	std::set<char> convertedKeys;
+	for (auto i: str){
+		convertedKeys.insert(i);
+	}
+	return convertedKeys;
+}
+
+int process_rules(void){
+	ParsedRuleList temp; //class to process each line with that you will manage solver
+	std::vector<ParsedRuleList> rule_list; //here will be saved all metadata
 	std::vector<std::string> facts = rule_manager.getRu(); //here full list of rules
-	std::string delimiter = "<=>";
+
+	std::set<char> init_facts = ConvertToSet(info_storage.GetterInitFacts());
 #if DEBUG_SOLVER
+	// std::string init_facts = info_storage.GetterInitFacts();
+	// std::cout << "Init facts that should be true: " << init_facts << std::endl; //truth to start
+	int size = facts.size(); //size
+	std::cout << "Size: " << facts.size() << std::endl; // size of rule_list, how many cycles will be
+#endif
+
+/*	example
+	std::cout << temp.isEnd << std::endl;
+	rule_list.push_back(temp);
+	std::cout << rule_list[0].isEnd << std::endl;
+	test.isEnd = true;
+
+*/
+
+	std::string delimiter = "<=>";
 
 	for (auto i: facts){
 		//Step 1.
@@ -64,16 +172,44 @@ int process_rules(void){
 	delimiter = "=>";
 
 	for (auto i: facts){
-		//Step 2. split with => lines
-		std::string token = i.substr(0, i.find(delimiter)); // token is "scott"
+		//Step 2. split with delimeters and process each line
+		std::string left_token = i.substr(0, i.find(delimiter)); // token is "left side of the expression"
+		std::string right_token = i.substr(i.find(delimiter) + 2, i.size());
 #if DEBUG_SOLVER
-		std::cout << token << std::endl;
+		std::cout << "Str: " << i << std::endl;
+		std::cout << "LEFT: " << left_token << std::endl;
+		std::cout << "RIGHT: " << right_token << std::endl;
+		std::cout << std::endl;
 #endif
-		/*
-		//std::cout << test.convertToRPN(left side to solve) << std::endl;
-		//std::cout << test.convertToRPN(right side to solve// will be affected all variables included here) << std::endl;
-		*/
+		std::set<char> left_inv_ch = GetInvolvedChars(left_token);
+		std::set<char> right_inv_ch = GetInvolvedChars(right_token);
 
+		temp.invL = left_inv_ch;
+		temp.invR = right_inv_ch;
+
+		PrintSet(temp.invL);
+		PrintSet(temp.invR);
+		// PrintSet();
+		// std::cout << "TOKENS" << std::endl;
+		std::cout << convertToRPN(left_token) << std::endl;
+		std::cout << convertToRPN(right_token) << std::endl;
+		std::cout << "===================================" << std::endl;
+
+
+	///############ put to struct ###############///
+	//std::string rule;
+	// //splitted rules
+	// std::string rside;
+	// std::string lside;
+	// //Involved symbols upper case letters
+	// //std::set invSymb;
+	// //std::vector<char> invSymb;
+	// std::vector<char> invL;
+	// std::vector<char> invR;
+	// // Involved Operators ('+, - etc')
+	// std::vector<char> invOperLeft;
+	// std::vector<char> invOperRight;
+	// std::string init_facts;
 	}
 }	
 

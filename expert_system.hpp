@@ -19,6 +19,7 @@
 #include <string>
 #include <stack> 
 #include <iterator>
+#include <set>
 
 #define DEBUG_READING 1
 #define DEBUG_PARSING 1
@@ -499,7 +500,6 @@ private:
 };
 
 class ParsedRuleList{
-
 public:
 	//input rule
 	//will massive with rules and each rule will be parsed
@@ -510,73 +510,15 @@ public:
 	std::string lside;
 
 	//Involved symbols upper case letters
-	std::vector<char> invSymb;
-	std::vector<char> invL;
-	std::vector<char> invR;
+	// std::set<char> invSymb;
+	
 
-	// Involved Operators ('+, - etc')
-	std::vector<char> invOperLeft;
-	std::vector<char> invOperRight;
+	//std::vector<char> invSymb;
+	std::set<char> invL;
+	std::set<char> invR;
 
-	// sorted operators
-	std::vector<char> prioritOperators;
-
-	//changed equations according to prioritOperators;
-	std::string changed_rside;
-	std::string changed_lside;
-
-	//Bonus with bidirectional <=>
-	//Not only =>
-	bool bidirectional;
-
+	std::string init_facts;
 	ParsedRuleList(){
-		bidirectional = false;
-}
-
-std::string convertToRPN(std::string expression)// to add &
-{
-	//expression = "C|!G+Z+(A+B)+D";
-    std::stack<char> s;
-    std::string postfix;
-    for (auto tok : expression) {
-        if (std::isupper(tok)) {
-            postfix += tok;
-        } else if (tok == '(') {
-            s.emplace(tok);
-        } else if (tok == ')') {
-            while (!s.empty()) {
-                tok = s.top();
-                s.pop();
-                if (tok == '(') {
-                    break;
-                }
-                postfix += tok;
-            }
-        } else {
-            while (!s.empty() && precedence(tok) <= precedence(s.top())) {
-                postfix += s.top();
-                s.pop();
-            }
-            s.emplace(tok);
-        }
-    }
-    while (!s.empty()) {
-        postfix += s.top();
-        s.pop();
-    }
-    expression = postfix;
-    std::cout << "Converted to RPN: " << expression << std::endl;
-    return expression;
-}
-
-int precedence(char x)
-{
-    if (x == '(') {
-        return 0;
-    } else if (x != '!') {
-        return 1;
-    }
-    return 2;
 }
 
 private:
