@@ -38,6 +38,16 @@ FEW NOTES:
 
 std::map<char, bool> resolved_letters;
 
+void showstack(std::stack<std::string> toSolve) 
+{ 
+    while (!toSolve.empty()) 
+    {
+        std::cout << '\t' << toSolve.top();
+        toSolve.pop(); 
+    } 
+    std::cout << '\n'; 
+} 
+
 bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 	std::vector<ParsedRuleList>::iterator it;
 
@@ -57,8 +67,10 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 	return true;
 }
 
-bool SolvingStack(std::stack<std::string> stack){
+bool SolvingStack(std::stack<std::string> toSolve){
 	std::cout << "SolvingStack" << std::endl;
+	std::cout << "STACK SIZE: " << toSolve.size() << std::endl;
+	showstack(toSolve);
 }
 
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
@@ -86,6 +98,7 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 
 		if (it->rside.find(quer) != std::string::npos){
 			std::cout << "Found letter in the right side" << std::endl;
+			std::cout << it->rule << std::endl;
 			toSolve.push(it->rule);
 		}
 		else{
@@ -260,6 +273,7 @@ int process_rules(void){
 
 	for (auto i: facts){
 		//Step 2. split with delimeters and process each line
+		temp.rule = i;
 		std::string left_token = i.substr(0, i.find(delimiter)); // token is "left side of the expression"
 		std::string right_token = i.substr(i.find(delimiter) + 2, i.size());
 #if DEBUG_SOLVER
