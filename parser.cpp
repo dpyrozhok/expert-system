@@ -49,23 +49,30 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 				std::cout << "Error. Not allowed operator or symbol" << '\n';
 				std::cout << "Please, use only Operator (+) in the right side according to mandatory requirements" << '\n';
 				exit(1);
+				}
 			}
-		}
 
-	}
+		}
+	std::cout << "Limitation passed - ok" << '\n';
 	return true;
 }
 
+bool SolvingStack(std::stack<std::string> stack){
+	std::cout << "SolvingStack" << std::endl;
+}
+
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
-	std::cout << "Initial facts: " << info_storage.GetterInitFacts() << std::endl;
-	std::cout << "Ask question" << std::endl;
+	//std::cout << "Initial facts: " << info_storage.GetterInitFacts() << std::endl;
+	std::cout << "\nAsk question" << std::endl;
 	std::cout << quer << std::endl;
+
 	//check if Question present in the input facts or not
+	std::stack<std::string> toSolve;
 
 	auto search = init_facts.find(quer);
     if (search != init_facts.end()) {
 		resolved_letters.insert(std::make_pair(quer, true)); 
-        std::cout << "Found in the init facts " << (*search) << '\n';
+        std::cout << "Found in the init facts " << (*search) << "\n\n";
         return true;
     }
     std::cout << "Not found, go find " << '\n';
@@ -79,12 +86,18 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 
 		if (it->rside.find(quer) != std::string::npos){
 			std::cout << "Found letter in the right side" << std::endl;
+			toSolve.push(it->rule);
 		}
 		else{
-			std::cout << "Not found, take default value FALSE" << std::endl;			
+			std::cout << "Not found in the right side" << std::endl;			
 		}
 	}
-
+	if (toSolve.empty()){
+		std::cout << "Not found value nor in init facts neither in right side => take default FALSE value" << std::endl;
+		resolved_letters.insert(std::make_pair(quer, false)); 
+		return true;
+	}
+	SolvingStack(toSolve);
 	std::cout << std::endl;
 	return true;
 }
@@ -274,9 +287,9 @@ int process_rules(void){
 		//PUT THIS TO THE GLOBAL CONTAINER
 		rule_list.push_back(temp);
 	}
-	std::vector<ParsedRuleList>::iterator it;
-	it = rule_list.begin();
-	std::cout << "YAAAAAAAAAAAAAZ" << it->rside << std::endl;
+	// std::vector<ParsedRuleList>::iterator it;
+	// it = rule_list.begin();
+	//std::cout << "YAAAAAAAAAAAAAZ" << it->rside << std::endl;
 
 	resolver(rule_list, init_facts, querries);
 }	
