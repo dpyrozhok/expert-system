@@ -32,7 +32,73 @@ FEW NOTES:
 	// rule_list.push_back(test1);
 	// std::cout << rule_list[0].rule;
 
+30.01.20 - trying to start resolve
+
 */
+
+std::map<char, bool> resolved_letters;
+
+bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
+	std::vector<ParsedRuleList>::iterator it;
+
+	it = rule_list.begin();
+	for (it; it != rule_list.end(); it++){
+		for (auto i: it->rside){
+			std::cout << "Additional checking: " << i << std::endl;
+			if (!(i >= RULES_START && i <= RULES_END) && (i != PLUS) && (i != VOSKL)){
+				std::cout << "Error. Not allowed operator or symbol" << '\n';
+				std::cout << "Please, use only Operator (+) in the right side according to mandatory requirements" << '\n';
+				exit(1);
+			}
+		}
+
+	}
+	return true;
+}
+
+bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
+	std::cout << "Initial facts: " << info_storage.GetterInitFacts() << std::endl;
+	std::cout << "Ask question" << std::endl;
+	std::cout << quer << std::endl;
+	//check if Question present in the input facts or not
+
+	auto search = init_facts.find(quer);
+    if (search != init_facts.end()) {
+		resolved_letters.insert(std::make_pair(quer, true)); 
+        std::cout << "Found in the init facts " << (*search) << '\n';
+        return true;
+    }
+    std::cout << "Not found, go find " << '\n';
+    
+    std::vector<ParsedRuleList>::iterator it;
+	it = rule_list.begin();
+    for (it; it != rule_list.end(); it++){
+    	// std::cout << "================" << '\n';    	
+    	std::cout << it->rside << '\n';
+    	// std::cout << it->rside.find(quer) << '\n';
+
+		if (it->rside.find(quer) != std::string::npos){
+			std::cout << "Found letter in the right side" << std::endl;
+		}
+		else{
+			std::cout << "Not found, take default value FALSE" << std::endl;			
+		}
+	}
+
+	std::cout << std::endl;
+	return true;
+}
+
+int resolver(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, std::set<char> querries){
+	std::cout << std::endl << std::endl << std::endl;
+	std::cout << "NewEpoch" << std::endl;
+
+	limitateRightSide(rule_list);
+
+	for (auto i: querries){
+		askQuestion(rule_list, init_facts, i);
+	}
+}
 
 int precedence(char x)
 {
@@ -128,15 +194,23 @@ std::set<char> ConvertToSet(std::string str){
 	return convertedKeys;
 }
 
+std::string ConvertVectorToStr(std::vector<std::string> vector_){
+	std::string convertedStr;
+	for (auto i: vector_)
+		convertedStr += i;
+	return convertedStr;		
+}
+
 int process_rules(void){
 	ParsedRuleList temp; //class to process each line with that you will manage solver
 	std::vector<ParsedRuleList> rule_list; //here will be saved all metadata
 	std::vector<std::string> facts = rule_manager.getRu(); //here full list of rules
 
 	std::set<char> init_facts = ConvertToSet(info_storage.GetterInitFacts());
+	std::set<char> querries =  ConvertToSet(ConvertVectorToStr(data_parser.getterQuerry()));
+	
 #if DEBUG_SOLVER
-	// std::string init_facts = info_storage.GetterInitFacts();
-	// std::cout << "Init facts that should be true: " << init_facts << std::endl; //truth to start
+	PrintSet(init_facts);	
 	int size = facts.size(); //size
 	std::cout << "Size: " << facts.size() << std::endl; // size of rule_list, how many cycles will be
 #endif
@@ -189,28 +263,22 @@ int process_rules(void){
 
 		PrintSet(temp.invL);
 		PrintSet(temp.invR);
-		// PrintSet();
-		// std::cout << "TOKENS" << std::endl;
-		std::cout << convertToRPN(left_token) << std::endl;
-		std::cout << convertToRPN(right_token) << std::endl;
+
+		temp.lside = convertToRPN(left_token);
+		temp.rside = convertToRPN(right_token);
+
+		std::cout << temp.lside << std::endl;
+		std::cout << temp.rside << std::endl;
 		std::cout << "===================================" << std::endl;
 
-
-	///############ put to struct ###############///
-	//std::string rule;
-	// //splitted rules
-	// std::string rside;
-	// std::string lside;
-	// //Involved symbols upper case letters
-	// //std::set invSymb;
-	// //std::vector<char> invSymb;
-	// std::vector<char> invL;
-	// std::vector<char> invR;
-	// // Involved Operators ('+, - etc')
-	// std::vector<char> invOperLeft;
-	// std::vector<char> invOperRight;
-	// std::string init_facts;
+		//PUT THIS TO THE GLOBAL CONTAINER
+		rule_list.push_back(temp);
 	}
+	std::vector<ParsedRuleList>::iterator it;
+	it = rule_list.begin();
+	std::cout << "YAAAAAAAAAAAAAZ" << it->rside << std::endl;
+
+	resolver(rule_list, init_facts, querries);
 }	
 
 int parsing(void){

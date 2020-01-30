@@ -348,6 +348,7 @@ int SyntaxRuleChecker(std::string line){
 	}
 
 	void print_Querries(){
+		// std::cout << this->Querries[0];
 		for (auto i: this->Querries)
 			std::cout << i << std::endl;		
 	}
@@ -542,5 +543,8 @@ public:
 
 private:
 	std::vector<std::string> Rules;
+};
+
+class FinalStatus{
 };
 #endif
