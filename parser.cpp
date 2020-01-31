@@ -115,6 +115,16 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
     }
     std::cout << "Not found, go find " << '\n';
     
+
+    ///HEERE TO BE CHECKED AT THE EVENING
+    auto search1 = resolved_letters.find(quer);
+    //########################################################################
+    if (search1 != resolved_letters.end()) {
+		//resolved_letters.insert(std::make_pair(quer, true)); 
+        std::cout << "Found in the resolved letters\n"; //<< (*search1) << "\n\n";
+        return true;
+    }
+    //########################################################################
     std::vector<ParsedRuleList>::iterator it;
 	it = rule_list.begin();
     for (it; it != rule_list.end(); it++){
