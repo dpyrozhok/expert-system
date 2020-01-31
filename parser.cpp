@@ -26,15 +26,21 @@ FEW NOTES:
 	IF YOU LETTER == TRUE, ANYWAY YOU FINAL RESULT WILL BE TRUE, don't take into account FALSE 
 
 29.01.20 -> stopped at process rules
-
-	// example
-	// test1.convertToRPN("C|!G+Z+(A+B)+D");
-	// rule_list.push_back(test1);
-	// std::cout << rule_list[0].rule;
-
 30.01.20 - trying to start resolve
+31.01.20 - continue with resolving
 
+What's already done with Solver:
+1. when question present in the initial facts => return status = TRUE
+2. when question not present in the rules => return status = FALSE
+3. todo: when one/two rule present
+	3.1 think about recursion
+	Notes:
+	- Each question should be processed separately and should be added to init facts for next questions)
+	- Each affected rule should be porcessed separately too
 */
+std::string ConvertSetToStr(std::set<char> used_chars);
+std::set<char> GetInvolvedChars(std::string str);
+bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer);
 
 std::map<char, bool> resolved_letters;
 
@@ -45,7 +51,19 @@ void showstack(std::stack<std::string> toSolve)
         std::cout << '\t' << toSolve.top();
         toSolve.pop(); 
     } 
-    std::cout << '\n'; 
+    std::cout << '\n';
+}
+
+std::string getlinefromstack(std::stack<std::string> toSolve) 
+{ 
+	std::string str;
+    while (!toSolve.empty()) 
+    {
+        str = toSolve.top();
+        toSolve.pop(); 
+    } 
+    // std::cout << '\n';
+    return str;
 } 
 
 bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
@@ -67,10 +85,18 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 	return true;
 }
 
-bool SolvingStack(std::stack<std::string> toSolve){
+bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> rule_list, std::set<char> init_facts){
 	std::cout << "SolvingStack" << std::endl;
 	std::cout << "STACK SIZE: " << toSolve.size() << std::endl;
-	showstack(toSolve);
+	//showstack(toSolve);
+	std::string i = getlinefromstack(toSolve);
+	std::string left_token = i.substr(0, i.find("=>")); // token is "left side of the expression"
+	std::set<char> inv_Chars = GetInvolvedChars(left_token);
+	std::string inv_Chars_str = ConvertSetToStr(inv_Chars);
+	std::cout << "INV_CHARS_STR: " << inv_Chars_str << std::endl;
+	for (auto z: inv_Chars_str){
+		askQuestion(rule_list, init_facts, z);
+	}
 }
 
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
@@ -110,7 +136,7 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 		resolved_letters.insert(std::make_pair(quer, false)); 
 		return true;
 	}
-	SolvingStack(toSolve);
+	SolvingStack(toSolve, rule_list, init_facts);
 	std::cout << std::endl;
 	return true;
 }
@@ -209,6 +235,15 @@ void PrintSet(std::set<char> used_chars){
 	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  std::cout << *it;
 	std::cout << std::endl;
+}
+
+std::string ConvertSetToStr(std::set<char> used_chars){
+	std::cout << "ConvertSetToStr" << std::endl;
+	std::string str = "";
+	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
+  	  str += *it;
+	std::cout << std::endl;
+	return str;
 }
 
 std::set<char> ConvertToSet(std::string str){
