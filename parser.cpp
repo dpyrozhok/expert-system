@@ -41,6 +41,7 @@ What's already done with Solver:
 std::string ConvertSetToStr(std::set<char> used_chars);
 std::set<char> GetInvolvedChars(std::string str);
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer);
+std::string convertToRPN(std::string expression);
 
 std::map<char, bool> resolved_letters;
 
@@ -92,10 +93,23 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 	std::string i = getlinefromstack(toSolve);
 	std::string left_token = i.substr(0, i.find("=>")); // token is "left side of the expression"
 	std::set<char> inv_Chars = GetInvolvedChars(left_token);
+	std::string right_token = i.substr(i.find("=>") + 2, i.size());
 	std::string inv_Chars_str = ConvertSetToStr(inv_Chars);
 	std::cout << "INV_CHARS_STR: " << inv_Chars_str << std::endl;
 	for (auto z: inv_Chars_str){
 		askQuestion(rule_list, init_facts, z);
+	}
+	std::cout << "DONE WITH INVOLVED CHARS, TRY TO RESOLVE EXPRESSION\n";
+	std::string final_status = convertToRPN(left_token);
+
+	for (auto x: final_status){
+		auto search = resolved_letters.find(x);
+    	if (search != resolved_letters.end()) {
+  			std::cout << "FINAL_STATUS " << search->first << " " << search->second << std::endl;
+    	}
+    	else{
+
+    	}
 	}
 }
 
@@ -158,6 +172,7 @@ int resolver(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, s
 	limitateRightSide(rule_list);
 
 	for (auto i: querries){
+		std::cout << "Main resolver function=====\n";
 		askQuestion(rule_list, init_facts, i);
 	}
 }
