@@ -44,6 +44,7 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 std::string convertToRPN(std::string expression);
 
 std::map<char, bool> resolved_letters;
+bool bool_result;
 
 void showstack(std::stack<std::string> toSolve) 
 { 
@@ -86,6 +87,15 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 	return true;
 }
 
+bool RPNCalculate(bool a, bool b, char op){
+	switch (op) {
+		case '|': return(a | b);
+		case '^': return(a ^ b);
+		case '+': return(a + b);
+		default: return (a + b);
+	}
+}
+
 bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> rule_list, std::set<char> init_facts){
 	std::cout << "SolvingStack" << std::endl;
 	std::cout << "STACK SIZE: " << toSolve.size() << std::endl;
@@ -101,16 +111,58 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 	}
 	std::cout << "DONE WITH INVOLVED CHARS, TRY TO RESOLVE EXPRESSION\n";
 	std::string final_status = convertToRPN(left_token);
+	std::set<char> inv_Chars_right = GetInvolvedChars(right_token);
+	std::string invChRight_str = ConvertSetToStr(inv_Chars_right);
 
+	int first = -1;
+	int second = -1;
+	int iterat = 1;
+	bool result;
 	for (auto x: final_status){
 		auto search = resolved_letters.find(x);
     	if (search != resolved_letters.end()) {
-  			std::cout << "FINAL_STATUS " << search->first << " " << search->second << std::endl;
+  			//if std::cout << "FINAL_STATUS " << search->first << " " << search->second << std::endl;
+    		if (iterat == 1){
+    			first = search->second;
+    		}
+    		if (iterat == 2){
+    			second = search->second;
+    		}
+    		std::cout << "Iteration : " << iterat << std::endl;
+    		std::cout << "FIRST : " << first << std::endl;
+    		std::cout << "SECOND : " << second << std::endl;
+    		std::cout << "LETTER:VALUE FROM DICT: " << search->first << " " << search->second << std::endl;
+    		iterat++;
     	}
     	else{
-
+    		std::cout << "Didn't find char in the resolved letter : " << x << std::endl;
+    		if (x == '!'){
+    			if (iterat == 2){
+    				second = !second;
+    			}
+    			if (iterat > 2){
+    				first = !first;
+    			}
+	    		std::cout << "Iteration : " << iterat << std::endl;
+    			std::cout << "FIRST : " << first << std::endl;
+    			std::cout << "SECOND : " << second << std::endl;
+    		}
+    		else if (x == '+' || x == '^' || x == '|'){
+				std::cout << "Calculating RPN" << std::endl;
+	    		std::cout << "Iteration : " << iterat << std::endl;
+    			std::cout << "FIRST : " << first << std::endl;
+    			std::cout << "SECOND : " << second << std::endl;
+    			result = RPNCalculate((bool)first, (bool)second, x);
+    			std::cout << "RESULT is: " << result << std::endl;
+    			iterat=1;
+    			x = '\0';
+    		}
     	}
 	}
+	for (auto z: invChRight_str){
+		resolved_letters.insert(std::make_pair(z, result)); 
+	}
+
 }
 
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
