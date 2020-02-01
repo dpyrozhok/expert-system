@@ -138,10 +138,12 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
     		std::cout << "Didn't find char in the resolved letter : " << x << std::endl;
     		if (x == '!'){
     			if (iterat == 2){
-    				second = !second;
+    				first = !first;
+
     			}
     			if (iterat > 2){
-    				first = !first;
+    				second = !second;
+
     			}
 	    		std::cout << "Iteration : " << iterat << std::endl;
     			std::cout << "FIRST : " << first << std::endl;
@@ -159,7 +161,16 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
     		}
     	}
 	}
+
 	for (auto z: invChRight_str){
+		if (inv_Chars.size() == 1){
+		//here when only one letter in the left
+		//C=>E for example
+			std::cout << "When in the left side only one letter\n";
+			std::cout << "Adding letter: " << z << " Status: " << (bool)first << std::endl;
+			resolved_letters.insert(std::make_pair(z, first)); 
+		}
+		std::cout << "Adding letter: " << z << " Status: " << (bool)result << std::endl;
 		resolved_letters.insert(std::make_pair(z, result)); 
 	}
 
