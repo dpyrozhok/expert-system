@@ -20,7 +20,7 @@ E + F => !V # E and F implies not V
 # If no facts are initially true, then a simple "=" followed
 # by a newline is used
 
-#?GVXO # Queries : What are G, V and X ?
+?GVX # Queries : What are G, V and X ?
 
+#?VK
 
-?V

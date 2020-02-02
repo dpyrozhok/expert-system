@@ -42,6 +42,9 @@ std::string ConvertSetToStr(std::set<char> used_chars);
 std::set<char> GetInvolvedChars(std::string str);
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer);
 std::string convertToRPN(std::string expression);
+std::string ConvertVectorToStr(std::vector<std::string> vector_);
+bool check_right_inversion(char z,std::string inversed_rSide);
+
 
 std::map<char, bool> resolved_letters;
 bool bool_result;
@@ -91,8 +94,8 @@ bool RPNCalculate(bool a, bool b, char op){
 	switch (op) {
 		case '|': return(a | b);
 		case '^': return(a ^ b);
-		case '+': return(a + b);
-		default: return (a + b);
+		case '+': return(a & b);
+		default: return (a & b);
 	}
 }
 
@@ -113,6 +116,8 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 	std::string final_status = convertToRPN(left_token);
 	std::set<char> inv_Chars_right = GetInvolvedChars(right_token);
 	std::string invChRight_str = ConvertSetToStr(inv_Chars_right);
+	std::string inversed_rSide = convertToRPN(right_token);
+
 
 	int first = -1;
 	int second = -1;
@@ -163,18 +168,41 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 	}
 
 	for (auto z: invChRight_str){
+		//if in the right side exist ! => you should inverse result
+		//here should handled multiple chars in the right side
+		bool inversed = false;
+		inversed = check_right_inversion(z, inversed_rSide);
+		std::cout << "Result will be inversed? " << ((inversed) ? "Yes" : "No") << std::endl;
 		if (inv_Chars.size() == 1){
 		//here when only one letter in the left
 		//C=>E for example
 			std::cout << "When in the left side only one letter\n";
 			std::cout << "Adding letter: " << z << " Status: " << (bool)first << std::endl;
-			resolved_letters.insert(std::make_pair(z, first)); 
+			if (inversed)
+				resolved_letters.insert(std::make_pair(z, !first)); 
+			else
+				resolved_letters.insert(std::make_pair(z, first)); 
+
 		}
-		std::cout << "Adding letter: " << z << " Status: " << (bool)result << std::endl;
-		resolved_letters.insert(std::make_pair(z, result)); 
+		else{
+			std::cout << "Adding letter: " << z << " Status: " << (bool)result << std::endl;
+			if (inversed)
+				resolved_letters.insert(std::make_pair(z, !result));
+			else 
+				resolved_letters.insert(std::make_pair(z, result)); 
+		}
 	}
 
 }
+bool check_right_inversion(char z, std::string inversed_rSide){
+	int pos = inversed_rSide.find(z);
+	if (pos != std::string::npos){
+		if (inversed_rSide[pos + 1] == '!')
+			return true;
+	}
+	return false;
+}
+
 
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
 	//std::cout << "Initial facts: " << info_storage.GetterInitFacts() << std::endl;
@@ -210,6 +238,11 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
     	// std::cout << it->rside.find(quer) << '\n';
 
 		if (it->rside.find(quer) != std::string::npos){
+			if (it->is_used == true){
+				std::cout << "Error. Find internal loop in the rule list\n";
+				exit(777);
+			}
+			it->is_used = true;
 			std::cout << "Found letter in the right side" << std::endl;
 			std::cout << it->rule << std::endl;
 			toSolve.push(it->rule);
@@ -228,6 +261,16 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 	return true;
 }
 
+void giveAnswer(std::string querries){//?ABG
+	for (auto i: querries){
+		auto search = resolved_letters.find(i);
+    	if (search != resolved_letters.end()) {
+    		std::cout << "FINAL_STATUS => " << "LETTER: " << i << " " \
+    		<< "Answer:" << (((bool)(search->second)) ? "TRUE" : "FALSE") << std::endl;
+		}
+	}
+}
+
 int resolver(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, std::set<char> querries){
 	std::cout << std::endl << std::endl << std::endl;
 	std::cout << "NewEpoch" << std::endl;
@@ -238,6 +281,7 @@ int resolver(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, s
 		std::cout << "Main resolver function=====\n";
 		askQuestion(rule_list, init_facts, i);
 	}
+	giveAnswer(ConvertVectorToStr(data_parser.getterQuerry()));
 }
 
 int precedence(char x)

@@ -221,9 +221,9 @@ int SyntaxRuleChecker(std::string line){
 		}
 		else if (i == STEPEN){
 #if DEBUG_PARSING
-			std::cout << "Found PIPE" << std::endl;			
+			std::cout << "Found STEPEN" << std::endl;			
 #endif
-			if ( !(isAlpha(lastSymb)) )
+			if ( !(isAlpha(lastSymb)) && (lastSymb != ')'))
 				return false;
 		}
 		//TWO LETTERS IN A ROW WITHOUT SPECIAL SYMB: A + BBBBBB
@@ -519,7 +519,9 @@ public:
 	std::set<char> invR;
 
 	std::string init_facts;
+	bool is_used;
 	ParsedRuleList(){
+		is_used = false;
 }
 
 private:
