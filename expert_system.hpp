@@ -21,10 +21,10 @@
 #include <iterator>
 #include <set>
 
-#define DEBUG_READING 1
-#define DEBUG_PARSING 1
-#define DEBUG_RULES_WORK 1
-#define DEBUG_SOLVER 1
+#define DEBUG_READING 0
+#define DEBUG_PARSING 0
+#define DEBUG_RULES_WORK 0
+#define DEBUG_SOLVER 0
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -97,14 +97,39 @@ public:
 
 	void get_input_file(std::string filename){
 		std::string line;
+		 FILE* fd = std::fopen(filename.c_str(), "r");
+    if(!fd) {
+        std::perror("File opening failed");
+        exit (3);
+    }
+ 
+    int c; // note: int, not char, required to handle EOF
+    while ((c = std::fgetc(fd)) != EOF) { // standard C I/O file reading loop
+       std::putchar(c);
+    }
+ 
+    if (std::ferror(fd)) {
+        std::puts("I/O error when reading new");
+    	exit (3);
+    }
+    else if (std::feof(fd)){
+#if DEBUG_PARSING
+        std::puts("End of file reached successfully");
+#endif
+	}
 		std::ifstream input(filename);
+	if (!input.is_open()) {
+   		std::cout << "failed to open " << filename << '\n';
+		exit(778);  		
+  	}
 #if DEBUG_READING
-		std::cout << "======================================\n";
-		std::cout<< " Reading input file"<<std::endl;
-		std::cout << "======================================\n";
-		#endif
-		while(std::getline(input, line)) {
-			this->input_list.push_back(line);
+	std::cout << input.good();
+	std::cout << "======================================\n";
+	std::cout<< " Reading input file"<<std::endl;
+	std::cout << "======================================\n";
+#endif
+	while(std::getline(input, line)) {
+		this->input_list.push_back(line);
 #if DEBUG_READING
 			std::cout<<line<<std::endl;
 #endif
@@ -364,14 +389,18 @@ int SyntaxRuleChecker(std::string line){
 			int ascii_code = line[0];
 			DATA_SWITCH ascii = DATA_SWITCH(ascii_code);
 
-			// std::cout << ascii <<std::endl;
+			// std::cout << ascii_code <<std::endl;
+			// std::cout << FACTS <<std::endl;
+
 			if (FACTS == ascii_code){
 				validFacts(line);
 			}
 			else if (QUERRIES == ascii_code){
 				validQuerries(line);
 			}
-			else if ((ascii_code >= RULES_START && ascii_code <= RULES_END) || (ALLOWED_CHARS)ascii == LSKOBKA){
+			else if ((ascii_code >= RULES_START && ascii_code <= RULES_END) || \
+			(ALLOWED_CHARS)ascii == LSKOBKA || \
+			(ALLOWED_CHARS)ascii == VOSKL) {
 				validRules(line);
 			}
 			else

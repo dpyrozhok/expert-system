@@ -77,7 +77,9 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 	it = rule_list.begin();
 	for (it; it != rule_list.end(); it++){
 		for (auto i: it->rside){
+#if DEBUG_SOLVER
 			std::cout << "Additional checking: " << i << std::endl;
+#endif
 			if (!(i >= RULES_START && i <= RULES_END) && (i != PLUS) && (i != VOSKL)){
 				std::cout << "Error. Not allowed operator or symbol" << '\n';
 				std::cout << "Please, use only Operator (+) in the right side according to mandatory requirements" << '\n';
@@ -86,7 +88,10 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 			}
 
 		}
+#if DEBUG_SOLVER
 	std::cout << "Limitation passed - ok" << '\n';
+#endif
+
 	return true;
 }
 
@@ -100,19 +105,25 @@ bool RPNCalculate(bool a, bool b, char op){
 }
 
 bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> rule_list, std::set<char> init_facts){
+#if DEBUG_SOLVER
 	std::cout << "SolvingStack" << std::endl;
 	std::cout << "STACK SIZE: " << toSolve.size() << std::endl;
+#endif
 	//showstack(toSolve);
 	std::string i = getlinefromstack(toSolve);
 	std::string left_token = i.substr(0, i.find("=>")); // token is "left side of the expression"
 	std::set<char> inv_Chars = GetInvolvedChars(left_token);
 	std::string right_token = i.substr(i.find("=>") + 2, i.size());
 	std::string inv_Chars_str = ConvertSetToStr(inv_Chars);
+#if DEBUG_SOLVER	
 	std::cout << "INV_CHARS_STR: " << inv_Chars_str << std::endl;
+#endif
 	for (auto z: inv_Chars_str){
 		askQuestion(rule_list, init_facts, z);
 	}
+#if DEBUG_SOLVER
 	std::cout << "DONE WITH INVOLVED CHARS, TRY TO RESOLVE EXPRESSION\n";
+#endif
 	std::string final_status = convertToRPN(left_token);
 	std::set<char> inv_Chars_right = GetInvolvedChars(right_token);
 	std::string invChRight_str = ConvertSetToStr(inv_Chars_right);
@@ -123,6 +134,7 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 	int second = -1;
 	int iterat = 1;
 	bool result;
+	std::cout << "Processing rule: " << i << std::endl;
 	for (auto x: final_status){
 		auto search = resolved_letters.find(x);
     	if (search != resolved_letters.end()) {
@@ -133,14 +145,18 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
     		if (iterat == 2){
     			second = search->second;
     		}
+    #if DEBUG_SOLVER
     		std::cout << "Iteration : " << iterat << std::endl;
     		std::cout << "FIRST : " << first << std::endl;
     		std::cout << "SECOND : " << second << std::endl;
     		std::cout << "LETTER:VALUE FROM DICT: " << search->first << " " << search->second << std::endl;
+    #endif
     		iterat++;
     	}
     	else{
+    #if DEBUG_SOLVER
     		std::cout << "Didn't find char in the resolved letter : " << x << std::endl;
+    #endif
     		if (x == '!'){
     			if (iterat == 2){
     				first = !first;
@@ -150,17 +166,23 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
     				second = !second;
 
     			}
+    #if DEBUG_SOLVER
 	    		std::cout << "Iteration : " << iterat << std::endl;
     			std::cout << "FIRST : " << first << std::endl;
     			std::cout << "SECOND : " << second << std::endl;
+    #endif
     		}
     		else if (x == '+' || x == '^' || x == '|'){
+    #if DEBUG_SOLVER
 				std::cout << "Calculating RPN" << std::endl;
 	    		std::cout << "Iteration : " << iterat << std::endl;
     			std::cout << "FIRST : " << first << std::endl;
     			std::cout << "SECOND : " << second << std::endl;
+    #endif
     			result = RPNCalculate((bool)first, (bool)second, x);
+    #if DEBUG_SOLVER
     			std::cout << "RESULT is: " << result << std::endl;
+    #endif
     			iterat=1;
     			x = '\0';
     		}
@@ -172,24 +194,35 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 		//here should handled multiple chars in the right side
 		bool inversed = false;
 		inversed = check_right_inversion(z, inversed_rSide);
-		std::cout << "Result will be inversed? " << ((inversed) ? "Yes" : "No") << std::endl;
 		if (inv_Chars.size() == 1){
 		//here when only one letter in the left
 		//C=>E for example
-			std::cout << "When in the left side only one letter\n";
-			std::cout << "Adding letter: " << z << " Status: " << (bool)first << std::endl;
-			if (inversed)
+			if (inversed) {
 				resolved_letters.insert(std::make_pair(z, !first)); 
-			else
-				resolved_letters.insert(std::make_pair(z, first)); 
+				std::cout << "Result:"<<z<<" = "<<first<<" will be inversed to "<<!first<<std::endl;
+				std::cout<<ConvertVectorToStr(data_parser.getterQuerry())<<std::endl;
+				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!first << std::endl;
 
+			}
+			else{
+
+
+				resolved_letters.insert(std::make_pair(z, first)); 
+				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)first << std::endl;
+				}
 		}
 		else{
-			std::cout << "Adding letter: " << z << " Status: " << (bool)result << std::endl;
-			if (inversed)
+			if (inversed) {
 				resolved_letters.insert(std::make_pair(z, !result));
-			else 
+				std::cout << "Result:"<<z<<" = "<<result<<" will be inversed to "<<!result<<std::endl;
+				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!result << std::endl;
+
+
+			}
+			else{ 
 				resolved_letters.insert(std::make_pair(z, result)); 
+				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)result << std::endl;
+			}
 		}
 	}
 
@@ -218,7 +251,6 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
         std::cout << "Found in the init facts " << (*search) << "\n\n";
         return true;
     }
-    std::cout << "Not found, go find " << '\n';
     
 
     ///HEERE TO BE CHECKED AT THE EVENING
@@ -226,15 +258,18 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
     //########################################################################
     if (search1 != resolved_letters.end()) {
 		//resolved_letters.insert(std::make_pair(quer, true)); 
-        std::cout << "Found in the resolved letters\n"; //<< (*search1) << "\n\n";
+        std::cout << "Found in the resolved letters "<<search1->first<<" = true\n"; //<< (*search1) << "\n\n";
         return true;
     }
+    std::cout << "Not found in dictionary." << '\n';
     //########################################################################
     std::vector<ParsedRuleList>::iterator it;
 	it = rule_list.begin();
     for (it; it != rule_list.end(); it++){
-    	// std::cout << "================" << '\n';    	
+    	// std::cout << "================" << '\n';    
+#if DEBUG_SOLVER	
     	std::cout << it->rside << '\n';
+#endif
     	// std::cout << it->rside.find(quer) << '\n';
 
 		if (it->rside.find(quer) != std::string::npos){
@@ -247,9 +282,11 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 			std::cout << it->rule << std::endl;
 			toSolve.push(it->rule);
 		}
+#if DEBUG_SOLVER
 		else{
 			std::cout << "Not found in the right side" << std::endl;			
 		}
+#endif
 	}
 	if (toSolve.empty()){
 		std::cout << "Not found value nor in init facts neither in right side => take default FALSE value" << std::endl;
@@ -272,13 +309,17 @@ void giveAnswer(std::string querries){//?ABG
 }
 
 int resolver(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, std::set<char> querries){
+#if DEBUG_SOLVER
 	std::cout << std::endl << std::endl << std::endl;
 	std::cout << "NewEpoch" << std::endl;
-
+#endif
 	limitateRightSide(rule_list);
 
 	for (auto i: querries){
+#if DEBUG_SOLVER
 		std::cout << "Main resolver function=====\n";
+#endif
+
 		askQuestion(rule_list, init_facts, i);
 	}
 	giveAnswer(ConvertVectorToStr(data_parser.getterQuerry()));
@@ -326,7 +367,9 @@ std::string convertToRPN(std::string expression)// to add &
         s.pop();
     }
     expression = postfix;
+    #if DEBUG_SOLVER
     std::cout << "Converted to RPN: " << expression << std::endl;
+    #endif
     return expression;
 }
 
@@ -353,24 +396,25 @@ std::set<char> GetInvolvedChars(std::string str){
 // 			continue;
 // 	}
 */
-
+#if DEBUG_SOLVER
 	std::cout << "Ivolved chars in the string" << std::endl;
   	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  std::cout << *it;
 	std::cout << std::endl;
-
+#endif
 	return used_chars;
 }
 
 void PrintSet(std::set<char> used_chars){
-	std::cout << "PRINT SET, HELLO" << std::endl;
 	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  std::cout << *it;
 	std::cout << std::endl;
 }
 
 std::string ConvertSetToStr(std::set<char> used_chars){
+	#if  DEBUG_SOLVER
 	std::cout << "ConvertSetToStr" << std::endl;
+	#endif
 	std::string str = "";
 	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  str += *it;
@@ -454,17 +498,20 @@ int process_rules(void){
 
 		temp.invL = left_inv_ch;
 		temp.invR = right_inv_ch;
+#if DEBUG_SOLVER
 
 		PrintSet(temp.invL);
 		PrintSet(temp.invR);
-
+#endif
 		temp.lside = convertToRPN(left_token);
 		temp.rside = convertToRPN(right_token);
+
+#if DEBUG_SOLVER
 
 		std::cout << temp.lside << std::endl;
 		std::cout << temp.rside << std::endl;
 		std::cout << "===================================" << std::endl;
-
+#endif
 		//PUT THIS TO THE GLOBAL CONTAINER
 		rule_list.push_back(temp);
 	}
