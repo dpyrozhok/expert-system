@@ -538,17 +538,28 @@ int parsing(void){
 	info_storage.print_alpha();
 #endif
 
+if (!data_parser.getterFacts().empty()) {
+
 	info_storage.setterInitF(data_parser.getterFacts());
 
 	info_storage.ApplyInitFacts();
-
 #if DEBUG_PARSING
 	std::cout << "======================================\n";
 	std::cout << "Applied init facts to the dictionary\n";
 	std::cout << "======================================\n";
 	info_storage.print_alpha();
 #endif
+}
+#if DEBUG_PARSING
+else {
+std::cout << "No facts\n";
+}
+#endif
+
 	//convertToRPN("C|!G+Z+(A+B)+D");
+if (data_parser.getterQuerry().empty())
+	std::cout << "Error. No querries\n";
+else
 	process_rules();
 }
 

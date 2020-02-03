@@ -21,10 +21,10 @@
 #include <iterator>
 #include <set>
 
-#define DEBUG_READING 0
-#define DEBUG_PARSING 0
-#define DEBUG_RULES_WORK 0
-#define DEBUG_SOLVER 0
+#define DEBUG_READING 1
+#define DEBUG_PARSING 1
+#define DEBUG_RULES_WORK 1
+#define DEBUG_SOLVER 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -169,9 +169,6 @@ public:
 
 
 	bool isAlpha(char c){
-#if DEBUG_PARSING
-		std::cout << std::endl<<"Parsing char: " << c << std::endl;
-#endif
 		//IsUpperCaseLetter?
 		if (c >= RULES_START && c <= RULES_END)
 			return true;
@@ -193,12 +190,12 @@ int SyntaxRuleChecker(std::string line){
 		/* 
 		DEBUG_PARSING PRINTS
 		*/
-		std::cout << "Calling isAlpha";
+
+		std::cout << std::endl<<"Parsing char: " << i << std::endl;
 		if (isAlpha(i))
-			std::cout << "Result: True" << std::endl;
+			std::cout << "Is alpha : True" << std::endl;
 		else
-			std::cout << "Result: False" << std::endl;
-		std::cout << "character " << i << std::endl;
+			std::cout << "Is alpha : False" << std::endl;
 		std::cout << "lastSymb " << lastSymb << std::endl;
 
 		std::cout << "\n";
@@ -289,7 +286,10 @@ int SyntaxRuleChecker(std::string line){
 
 		lastSymb = i;
 	}
-	if (skobki > 0 && (isAlpha(lastSymb) == false || lastSymb != ')')){
+#if DEBUG_PARSING
+			std::cout << "Go out: last symbol " <<lastSymb<< std::endl;
+#endif
+	if (skobki > 0 || (isAlpha(lastSymb) == false && lastSymb != ')')){
 		return false;
 	}
 	return true;
@@ -408,7 +408,6 @@ int SyntaxRuleChecker(std::string line){
 		}
 		//print_Rules();
 		//print_Facts();
-		//print_Querries();
 	}
 
 	std::vector<std::string> getterQuerry(){
