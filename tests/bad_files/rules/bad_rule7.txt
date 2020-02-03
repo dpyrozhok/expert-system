@@ -1,0 +1,6 @@
+A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A + A => C
+=A
+C + B=> E 
+=AB
+
+?C
