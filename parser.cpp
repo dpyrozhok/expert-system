@@ -66,8 +66,7 @@ std::string getlinefromstack(std::stack<std::string> toSolve)
     {
         str = toSolve.top();
         toSolve.pop(); 
-    } 
-    // std::cout << '\n';
+    }
     return str;
 } 
 
@@ -81,8 +80,7 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 			std::cout << "Additional checking: " << i << std::endl;
 #endif
 			if (!(i >= RULES_START && i <= RULES_END) && (i != PLUS) && (i != VOSKL)){
-				std::cout << "Error. Not allowed operator or symbol" << '\n';
-				std::cout << "Please, use only Operator (+) in the right side according to mandatory requirements" << '\n';
+				std::cout << "Error. Not allowed operator or symbol in the right side according to mandatory requirements" << '\n';
 				exit(1);
 				}
 			}
@@ -134,7 +132,9 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 	int second = -1;
 	int iterat = 1;
 	bool result;
+#if PRINT_STEPS
 	std::cout << "Processing rule: " << i << std::endl;
+#endif
 	for (auto x: final_status){
 		auto search = resolved_letters.find(x);
     	if (search != resolved_letters.end()) {
@@ -199,29 +199,35 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 		//C=>E for example
 			if (inversed) {
 				resolved_letters.insert(std::make_pair(z, !first)); 
+#if PRINT_STEPS
 				std::cout << "Result:"<<z<<" = "<<first<<" will be inversed to "<<!first<<std::endl;
 				std::cout<<ConvertVectorToStr(data_parser.getterQuerry())<<std::endl;
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!first << std::endl;
+#endif
 
 			}
 			else{
-
-
-				resolved_letters.insert(std::make_pair(z, first)); 
+				resolved_letters.insert(std::make_pair(z, first));
+#if PRINT_STEPS
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)first << std::endl;
+#endif
 				}
 		}
 		else{
 			if (inversed) {
 				resolved_letters.insert(std::make_pair(z, !result));
+#if PRINT_STEPS
 				std::cout << "Result:"<<z<<" = "<<result<<" will be inversed to "<<!result<<std::endl;
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!result << std::endl;
+#endif
 
 
 			}
 			else{ 
 				resolved_letters.insert(std::make_pair(z, result)); 
+#if PRINT_STEPS
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)result << std::endl;
+#endif
 			}
 		}
 	}
@@ -238,17 +244,19 @@ bool check_right_inversion(char z, std::string inversed_rSide){
 
 
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer){
-	//std::cout << "Initial facts: " << info_storage.GetterInitFacts() << std::endl;
+#if PRINT_STEPS
 	std::cout << "\nAsk question" << std::endl;
 	std::cout << quer << std::endl;
-
+#endif
 	//check if Question present in the input facts or not
 	std::stack<std::string> toSolve;
 
 	auto search = init_facts.find(quer);
     if (search != init_facts.end()) {
 		resolved_letters.insert(std::make_pair(quer, true)); 
+#if PRINT_STEPS
         std::cout << "Found in the init facts " << (*search) << "\n\n";
+#endif
         return true;
     }
     
@@ -258,10 +266,14 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
     //########################################################################
     if (search1 != resolved_letters.end()) {
 		//resolved_letters.insert(std::make_pair(quer, true)); 
+#if PRINT_STEPS
         std::cout << "Found in the resolved letters "<<search1->first<<" = true\n"; //<< (*search1) << "\n\n";
+#endif
         return true;
     }
+#if PRINT_STEPS
     std::cout << "Not found in dictionary." << '\n';
+#endif
     //########################################################################
     std::vector<ParsedRuleList>::iterator it;
 	it = rule_list.begin();
@@ -278,7 +290,9 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 				exit(777);
 			}
 			it->is_used = true;
+#if PRINT_STEPS
 			std::cout << "Found letter in the right side" << std::endl;
+#endif
 			std::cout << it->rule << std::endl;
 			toSolve.push(it->rule);
 		}
@@ -289,7 +303,9 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 #endif
 	}
 	if (toSolve.empty()){
+#if PRINT_STEPS
 		std::cout << "Not found value nor in init facts neither in right side => take default FALSE value" << std::endl;
+#endif
 		resolved_letters.insert(std::make_pair(quer, false)); 
 		return true;
 	}
@@ -406,9 +422,11 @@ std::set<char> GetInvolvedChars(std::string str){
 }
 
 void PrintSet(std::set<char> used_chars){
+#if  DEBUG_SOLVER
 	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  std::cout << *it;
 	std::cout << std::endl;
+#endif
 }
 
 std::string ConvertSetToStr(std::set<char> used_chars){

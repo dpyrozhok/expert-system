@@ -21,10 +21,12 @@
 #include <iterator>
 #include <set>
 
-#define DEBUG_READING 1
-#define DEBUG_PARSING 1
-#define DEBUG_RULES_WORK 1
-#define DEBUG_SOLVER 1
+#define PRINT_INPUT 1
+#define PRINT_STEPS 0
+#define DEBUG_READING 0
+#define DEBUG_PARSING 0
+#define DEBUG_RULES_WORK 0
+#define DEBUG_SOLVER 0
 
 enum DATA_SWITCH{
 	RULES_START = 65,
@@ -61,6 +63,7 @@ public:
 		this->cleaned_lines = {};
 	}
 
+#if DEBUG_READING
 	void print_cleaned_lines() {
 		std::cout << "======================================\n";
 		std::cout<< " Cleaned lines"<<std::endl;
@@ -69,7 +72,7 @@ public:
 			std::cout << i << std::endl;
 		}
 	}
-
+#endif
 	std::vector<std::string> getterCL(){
 		return this->cleaned_lines;
 	}
@@ -102,11 +105,13 @@ public:
         std::perror("File opening failed");
         exit (3);
     }
- 
+#if PRINT_INPUT
     int c; // note: int, not char, required to handle EOF
     while ((c = std::fgetc(fd)) != EOF) { // standard C I/O file reading loop
        std::putchar(c);
     }
+    std::cout<<"\n";
+#endif
  
     if (std::ferror(fd)) {
         std::puts("I/O error when reading new");
@@ -152,11 +157,13 @@ public:
 		this->isFacts = false;
 		this->isRules = false;
 }
+#if DEBUG_READING
 	int print_data(void){
 		for (auto i: this->cleaned_lines){
 			std::cout << i << std::endl;
 		}
 	}
+#endif
 
 	void setterCL(std::vector<std::string> in){
 		this->cleaned_lines = in;
@@ -373,7 +380,6 @@ int SyntaxRuleChecker(std::string line){
 	}
 
 	void print_Querries(){
-		// std::cout << this->Querries[0];
 		for (auto i: this->Querries)
 			std::cout << i << std::endl;		
 	}
@@ -389,8 +395,6 @@ int SyntaxRuleChecker(std::string line){
 			int ascii_code = line[0];
 			DATA_SWITCH ascii = DATA_SWITCH(ascii_code);
 
-			// std::cout << ascii_code <<std::endl;
-			// std::cout << FACTS <<std::endl;
 
 			if (FACTS == ascii_code){
 				validFacts(line);
@@ -406,8 +410,6 @@ int SyntaxRuleChecker(std::string line){
 			else
 				throw("Error. Bad line\n");
 		}
-		//print_Rules();
-		//print_Facts();
 	}
 
 	std::vector<std::string> getterQuerry(){
