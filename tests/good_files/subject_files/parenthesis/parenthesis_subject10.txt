@@ -1,8 +1,9 @@
 A | B + C => E # E is true
 (F | G) + H => E # E is true
 
-?E
 =FH
+
+?E
 
 # assertions
 # =FHE

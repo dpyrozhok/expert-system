@@ -64,8 +64,8 @@ std::string getlinefromstack(std::stack<std::string> toSolve)
 	std::string str;
     while (!toSolve.empty()) 
     {
-        str = toSolve.top();
-        toSolve.pop(); 
+    	str = toSolve.top();
+    	toSolve.pop(); 
     }
     return str;
 } 
@@ -102,13 +102,14 @@ bool RPNCalculate(bool a, bool b, char op){
 	}
 }
 
-bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> rule_list, std::set<char> init_facts){
+void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, std::set<char> init_facts){
 #if DEBUG_SOLVER
 	std::cout << "SolvingStack" << std::endl;
 	std::cout << "STACK SIZE: " << toSolve.size() << std::endl;
 #endif
 	//showstack(toSolve);
-	std::string i = getlinefromstack(toSolve);
+	//std::string i = getlinefromstack(toSolve);
+	std::string i = toSolve;
 	std::string left_token = i.substr(0, i.find("=>")); // token is "left side of the expression"
 	std::set<char> inv_Chars = GetInvolvedChars(left_token);
 	std::string right_token = i.substr(i.find("=>") + 2, i.size());
@@ -151,14 +152,14 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
     		std::cout << "SECOND : " << second << std::endl;
     		std::cout << "LETTER:VALUE FROM DICT: " << search->first << " " << search->second << std::endl;
     #endif
-    		iterat++;
+
     	}
     	else{
     #if DEBUG_SOLVER
     		std::cout << "Didn't find char in the resolved letter : " << x << std::endl;
     #endif
     		if (x == '!'){
-    			if (iterat == 2){
+    			if (iterat == 1){
     				first = !first;
 
     			}
@@ -182,11 +183,14 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
     			result = RPNCalculate((bool)first, (bool)second, x);
     #if DEBUG_SOLVER
     			std::cout << "RESULT is: " << result << std::endl;
+    			std::cout << "Let's put result to the first register and process others letters" << std::endl;
     #endif
+    			first = result;
     			iterat=1;
     			x = '\0';
     		}
     	}
+    	iterat++;
 	}
 
 	for (auto z: invChRight_str){
@@ -194,11 +198,26 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 		//here should handled multiple chars in the right side
 		bool inversed = false;
 		inversed = check_right_inversion(z, inversed_rSide);
+
+		auto check_dict = resolved_letters.find(z);
+    	if (check_dict != resolved_letters.end()) {
+	    	std::cout << "==============> Found in dict " << check_dict->first << " " << check_dict->second << '\n';
+    		if (check_dict->second == 1){
+	    	    std::cout << "Found in dict TRUE and ignore possible FALSE: " << check_dict->first << " " << check_dict->second << '\n';
+	    	    continue;
+    		}
+    	} else {
+    	    std::cout << "Not found letter in the dict\n";
+    	}
+
+
 		if (inv_Chars.size() == 1){
 		//here when only one letter in the left
 		//C=>E for example
 			if (inversed) {
-				resolved_letters.insert(std::make_pair(z, !first)); 
+				auto ins = resolved_letters.insert(std::make_pair(z, !first));;
+				ins.first->second += !first;
+				// resolved_letters.insert(std::make_pair(z, !first)); 
 #if PRINT_STEPS
 				std::cout << "Result:"<<z<<" = "<<first<<" will be inversed to "<<!first<<std::endl;
 				std::cout<<ConvertVectorToStr(data_parser.getterQuerry())<<std::endl;
@@ -207,7 +226,10 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 
 			}
 			else{
-				resolved_letters.insert(std::make_pair(z, first));
+
+				auto ins = resolved_letters.insert(std::make_pair(z, first));
+				ins.first->second += first;
+				// resolved_letters.insert(std::make_pair(z, first));
 #if PRINT_STEPS
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)first << std::endl;
 #endif
@@ -215,7 +237,10 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 		}
 		else{
 			if (inversed) {
-				resolved_letters.insert(std::make_pair(z, !result));
+				auto ins = resolved_letters.insert(std::make_pair(z, !result));
+				ins.first->second += !result;
+
+				// resolved_letters.insert(std::make_pair(z, !result));
 #if PRINT_STEPS
 				std::cout << "Result:"<<z<<" = "<<result<<" will be inversed to "<<!result<<std::endl;
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!result << std::endl;
@@ -224,14 +249,17 @@ bool SolvingStack(std::stack<std::string> toSolve, std::vector<ParsedRuleList> r
 
 			}
 			else{ 
-				resolved_letters.insert(std::make_pair(z, result)); 
+				auto ins = resolved_letters.insert(std::make_pair(z, result));
+				ins.first->second += result;
+
+				// resolved_letters.insert(std::make_pair(z, result)); 
 #if PRINT_STEPS
 				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)result << std::endl;
 #endif
 			}
 		}
 	}
-
+	// return first;
 }
 bool check_right_inversion(char z, std::string inversed_rSide){
 	int pos = inversed_rSide.find(z);
@@ -309,7 +337,13 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 		resolved_letters.insert(std::make_pair(quer, false)); 
 		return true;
 	}
-	SolvingStack(toSolve, rule_list, init_facts);
+	std::string str;
+    while (!toSolve.empty()) 
+    {
+    	str = toSolve.top();
+    	toSolve.pop(); 
+		SolvingStack(str, rule_list, init_facts);
+    }
 	std::cout << std::endl;
 	return true;
 }
