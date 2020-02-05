@@ -1,8 +1,12 @@
-(!(A | B)) + C => E # E is true AB|!C+
-(!A | B) + C => E # E is true A!B|C+
-(A | B) + C => E # E is true AB|C+
+!F => E # E is true
+#A | B + !C => E # E is true ABC!+|
+#A|B+(C|D) => E # E is true ABCD|+|
+#(!(A | B)) + C => E # E is true AB|!C+
+#(!A | B) + C => E # E is true A!B|C+
+#(A | B) + C => E # E is true AB|C+
+#(F | G) + H => E # E is true
+
 A | B + C => E # E is true ABC+|
-(F | G) + H => E # E is true
 =A
 ?E
 

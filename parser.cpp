@@ -145,7 +145,7 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 	std::string final_status = convertToRPN(left_token);
 	std::set<char> inv_Chars_right = GetInvolvedChars(right_token);
 	std::string invChRight_str = ConvertSetToStr(inv_Chars_right);
-	std::string inversed_rSide = convertToRPN(right_token);
+	std::string inversed_rSide = right_token;//convertToRPN(right_token);
 
 #if PRINT_STEPS
 	std::cout << "Processing rule: " << i << std::endl;
@@ -410,7 +410,9 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
     	toSolve.pop(); 
 		SolvingStack(str, rule_list, init_facts);
     }
+#if PRINT_STEPS
 	std::cout << std::endl;
+#endif
 	return true;
 }
 
@@ -565,7 +567,9 @@ std::string ConvertSetToStr(std::set<char> used_chars){
 	std::string str = "";
 	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  str += *it;
+#if  DEBUG_SOLVER
 	std::cout << std::endl;
+#endif
 	return str;
 }
 
@@ -617,7 +621,7 @@ int process_rules(void){
 #endif
 		// std::cout << i.find(delimiter) << std::endl;  // position in the line
 		if (i.find(delimiter) != std::string::npos){
-			std::cout << "Bidirectional not supported. That's bonus part" << std::endl;
+			std::cout << "Error. Bidirectional not supported. That's bonus part" << std::endl;
 			exit(2);
 		}
 #if DEBUG_SOLVER
@@ -651,7 +655,7 @@ int process_rules(void){
 		PrintSet(temp.invR);
 #endif
 		temp.lside = convertToRPN(left_token);
-		temp.rside = convertToRPN(right_token);
+		temp.rside = right_token;//convertToRPN(right_token);
 
 #if DEBUG_SOLVER
 
@@ -665,7 +669,11 @@ int process_rules(void){
 	// std::vector<ParsedRuleList>::iterator it;
 	// it = rule_list.begin();
 	//std::cout << "YAAAAAAAAAAAAAZ" << it->rside << std::endl;
-
+#if DEBUG_RPN
+	for (auto i: rule_list) {
+		std::cout<<rule_list<<std::endl;
+	}
+#endif
 	resolver(rule_list, init_facts, querries);
 }	
 
