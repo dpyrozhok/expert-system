@@ -48,8 +48,18 @@ bool check_right_inversion(char z,std::string inversed_rSide);
 
 std::map<char, bool> resolved_letters;
 bool bool_result;
+bool checkiftrue(char z);
 
 void showstack(std::stack<std::string> toSolve) 
+{ 
+    while (!toSolve.empty()) 
+    {
+        std::cout << '\t' << toSolve.top();
+        toSolve.pop(); 
+    } 
+    std::cout << '\n';
+}
+void showstackchar(std::stack<char> toSolve) 
 { 
     while (!toSolve.empty()) 
     {
@@ -102,24 +112,32 @@ bool RPNCalculate(bool a, bool b, char op){
 	}
 }
 
+int getValueFromDict(std::map<char, bool> dict, char letter){
+	auto ins = dict.find(letter); 
+    if (ins != dict.end()) {
+    	return ins->second;
+    }	
+    return -1;
+}
+
 void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, std::set<char> init_facts){
 #if DEBUG_SOLVER
-	std::cout << "SolvingStack" << std::endl;
-	std::cout << "STACK SIZE: " << toSolve.size() << std::endl;
-#endif
-	//showstack(toSolve);
-	//std::string i = getlinefromstack(toSolve);
+	std::cout << "Solving rule from stack" << std::endl;
+#endif	
 	std::string i = toSolve;
 	std::string left_token = i.substr(0, i.find("=>")); // token is "left side of the expression"
 	std::set<char> inv_Chars = GetInvolvedChars(left_token);
 	std::string right_token = i.substr(i.find("=>") + 2, i.size());
 	std::string inv_Chars_str = ConvertSetToStr(inv_Chars);
+
 #if DEBUG_SOLVER	
 	std::cout << "INV_CHARS_STR: " << inv_Chars_str << std::endl;
 #endif
+
 	for (auto z: inv_Chars_str){
 		askQuestion(rule_list, init_facts, z);
 	}
+
 #if DEBUG_SOLVER
 	std::cout << "DONE WITH INVOLVED CHARS, TRY TO RESOLVE EXPRESSION\n";
 #endif
@@ -128,139 +146,156 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 	std::string invChRight_str = ConvertSetToStr(inv_Chars_right);
 	std::string inversed_rSide = convertToRPN(right_token);
 
-
-	int first = -1;
-	int second = -1;
-	int iterat = 1;
-	bool result;
 #if PRINT_STEPS
 	std::cout << "Processing rule: " << i << std::endl;
 #endif
+
+	std::stack<char> LeftSideStack; //to calculate left side
+	std::map<char, bool> LocalInversedChars; //temporary store of the inversed values in the left side
+	bool result;
+	
 	for (auto x: final_status){
-		auto search = resolved_letters.find(x);
-    	if (search != resolved_letters.end()) {
-  			//if std::cout << "FINAL_STATUS " << search->first << " " << search->second << std::endl;
-    		if (iterat == 1){
-    			first = search->second;
-    		}
-    		if (iterat == 2){
-    			second = search->second;
-    		}
-    #if DEBUG_SOLVER
-    		std::cout << "Iteration : " << iterat << std::endl;
-    		std::cout << "FIRST : " << first << std::endl;
-    		std::cout << "SECOND : " << second << std::endl;
-    		std::cout << "LETTER:VALUE FROM DICT: " << search->first << " " << search->second << std::endl;
-    #endif
+		if (std::isupper(x) != 0){
+			//add letter to the stack
+			LeftSideStack.emplace(x);
+#ifdef DEBUG_RPN_CALCULATING
+    		std::cout << "Adding char to the stack " << x << std::endl;
+#endif
+    		continue;
+		}
 
-    	}
-    	else{
-    #if DEBUG_SOLVER
-    		std::cout << "Didn't find char in the resolved letter : " << x << std::endl;
-    #endif
-    		if (x == '!'){
-    			if (iterat == 1){
-    				first = !first;
+		else if (std::ispunct(x) != 0){
+			//calculate last two letter from stack and save result to the stack
+			if (x == '!'){
+				//exception with '!' to inverse last symbol in the stack and check next symbol
+				char letter = LeftSideStack.top(); //get last letter from stack
+				bool inversed_value;
 
-    			}
-    			if (iterat > 2){
-    				second = !second;
+    			LeftSideStack.pop(); //delete last letter from stack
+    			
+    			auto ins = resolved_letters.find(letter); //try to find letter in the resolved letter
+    			if (ins != resolved_letters.end()) {
 
-    			}
-    #if DEBUG_SOLVER
-	    		std::cout << "Iteration : " << iterat << std::endl;
-    			std::cout << "FIRST : " << first << std::endl;
-    			std::cout << "SECOND : " << second << std::endl;
-    #endif
-    		}
-    		else if (x == '+' || x == '^' || x == '|'){
-    #if DEBUG_SOLVER
-				std::cout << "Calculating RPN" << std::endl;
-	    		std::cout << "Iteration : " << iterat << std::endl;
-    			std::cout << "FIRST : " << first << std::endl;
-    			std::cout << "SECOND : " << second << std::endl;
-    #endif
-    			result = RPNCalculate((bool)first, (bool)second, x);
-    #if DEBUG_SOLVER
-    			std::cout << "RESULT is: " << result << std::endl;
-    			std::cout << "Let's put result to the first register and process others letters" << std::endl;
-    #endif
-    			first = result;
-    			iterat=1;
-    			x = '\0';
-    		}
-    	}
-    	iterat++;
-	}
+#ifdef DEBUG_RPN_CALCULATING
+    				std::cout << "Found letter in the resolved dic{Letter: " << ins->first << " , " << "Value: " << ins->second << "}" << std::endl;
+#endif
+    				inversed_value = ins->second;
 
-	for (auto z: invChRight_str){
-		//if in the right side exist ! => you should inverse result
-		//here should handled multiple chars in the right side
-		bool inversed = false;
-		inversed = check_right_inversion(z, inversed_rSide);
+					auto inv_dict = LocalInversedChars.insert(std::make_pair(letter, !inversed_value )); //try to add to the special dict
+					inv_dict.second = !inversed_value; //inverse value and put on special dictionary
 
-		auto check_dict = resolved_letters.find(z);
-    	if (check_dict != resolved_letters.end()) {
-	    	std::cout << "==============> Found in dict " << check_dict->first << " " << check_dict->second << '\n';
-    		if (check_dict->second == 1){
-	    	    std::cout << "Found in dict TRUE and ignore possible FALSE: " << check_dict->first << " " << check_dict->second << '\n';
-	    	    continue;
-    		}
-    	} else {
-    	    std::cout << "Not found letter in the dict\n";
-    	}
-
-
-		if (inv_Chars.size() == 1){
-		//here when only one letter in the left
-		//C=>E for example
-			if (inversed) {
-				auto ins = resolved_letters.insert(std::make_pair(z, !first));;
-				ins.first->second += !first;
-				// resolved_letters.insert(std::make_pair(z, !first)); 
-#if PRINT_STEPS
-				std::cout << "Result:"<<z<<" = "<<first<<" will be inversed to "<<!first<<std::endl;
-				std::cout<<ConvertVectorToStr(data_parser.getterQuerry())<<std::endl;
-				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!first << std::endl;
+#ifdef DEBUG_RPN_CALCULATING
+    				std::cout << "Inverse letter added to the special dic{Letter: " << inv_dict.first->first << " , " << "Value: " << inv_dict.first->second << " }" << std::endl;
 #endif
 
-			}
-			else{
+    				LeftSideStack.emplace(letter);
 
-				auto ins = resolved_letters.insert(std::make_pair(z, first));
-				ins.first->second += first;
-				// resolved_letters.insert(std::make_pair(z, first));
-#if PRINT_STEPS
-				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)first << std::endl;
+#ifdef DEBUG_RPN_CALCULATING
+    				std::cout << "Also adding back symbol after inversion checking to the stack: " << letter << std::endl;
 #endif
+
 				}
-		}
-		else{
-			if (inversed) {
-				auto ins = resolved_letters.insert(std::make_pair(z, !result));
-				ins.first->second += !result;
 
-				// resolved_letters.insert(std::make_pair(z, !result));
-#if PRINT_STEPS
-				std::cout << "Result:"<<z<<" = "<<result<<" will be inversed to "<<!result<<std::endl;
-				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)!result << std::endl;
+#ifdef DEBUG_RPN_CALCULATING
+				else{
+					std::cout << "UNEXPECTED BEHAVIOR. Not found letter in the resolved dic" << std::endl;
+				}
 #endif
-
-
+    			continue; //switch to the next character from expression
 			}
-			else{ 
-				auto ins = resolved_letters.insert(std::make_pair(z, result));
-				ins.first->second += result;
+			//others operators
+			//check how many letter already on stack, maybe if only 1 => missmatch somewhere
+			char operand1;
+			char operand2;
+			bool value_operand1;
+			bool value_operand2;
 
-				// resolved_letters.insert(std::make_pair(z, result)); 
-#if PRINT_STEPS
-				std::cout << "Adding letter to the resolved dictionary: " << z << " Status: " << (bool)result << std::endl;
+#ifdef DEBUG_RPN_CALCULATING
+    				std::cout << "Trying to calculate two values from stack" << std::endl;
 #endif
+			if (LeftSideStack.size() == 1){
+				std::cout << "UNEXPECTED BEHAVIOR. Only one letter on stack and requested calculations\n";
+				showstackchar(LeftSideStack);
+				std::cout << "PRINTED STACK";
+			}
+			if (LeftSideStack.size() >= 2){
+
+				operand1 = LeftSideStack.top(); // get last letter from stack
+				LeftSideStack.pop(); //delete it 
+
+				operand2 = LeftSideStack.top(); // get last-1 letter from stack
+				LeftSideStack.pop(); //delete it
+				
+				if (getValueFromDict(LocalInversedChars, operand1) != -1){
+				//try to check first operand in the inv dict	
+					value_operand1 = getValueFromDict(LocalInversedChars, operand1);
+				}
+				else{
+				//else process as usual from resolved dict
+					value_operand1 = getValueFromDict(resolved_letters, operand1);
+				}
+
+				if (getValueFromDict(LocalInversedChars, operand2) != -1){
+				//try to check second operand in the inv dict	
+					value_operand2 = getValueFromDict(LocalInversedChars, operand2);
+				}
+				else{
+				//else process as usual from resolved dict
+					value_operand2 = getValueFromDict(resolved_letters, operand2);
+				}
+				std::cout << "Perform calculation: " << operand1 << " with " << "value " << value_operand1 << " action: " << x << " and " \
+				<< operand2 << " with " << "value: " << value_operand2 << " " << std::endl;
+				result = RPNCalculate(value_operand1, value_operand2, x); // x is current char from line (operand)
+				std::cout << "Result after two operand calculation: " << result << std::endl;
+				std::cout << "Here should be saved result\n";
+				LeftSideStack.emplace('r');
+				auto rewrite = resolved_letters.insert(std::make_pair('r', result));
+				rewrite.first->second = result;
+    			}
 			}
 		}
+#ifdef DEBUG_RPN_CALCULATING
+    std::cout << "Done with calculating and try to update all chars from right side" << std::endl;
+#endif
+	char ch = LeftSideStack.top(); // get last letter from stack
+	LeftSideStack.pop(); //delete it 
+#ifdef DEBUG_RPN_CALCULATING
+    std::cout << "Get char from stack: " << ch << std::endl;
+#endif
+	auto search45 = resolved_letters.find(ch);
+	result = search45->second;
+#ifdef DEBUG_RPN_CALCULATING
+    std::cout << "Get value according to last char from stack: " << ch << " " << "Value: " << result << std::endl;
+#endif
+	for (auto involved: invChRight_str){
+//updating all letters from right side
+		if (checkiftrue(involved)){
+		//skip character if already status TRUE present in the resolved list
+			continue;
+		}
+		auto rewrite1 = resolved_letters.insert(std::make_pair(involved, result));
+		rewrite1.first->second = result;
+#ifdef DEBUG_RPN_CALCULATING
+  	  std::cout << "Updated needed value in the resolved list: " << involved << " " << "value: " << result << std::endl;
+#endif
 	}
-	// return first;
+
 }
+	
+bool checkiftrue(char z){
+	auto check_dict = resolved_letters.find(z);
+  
+ 	if (check_dict != resolved_letters.end()) {
+	   	std::cout << "==============> Found in dict " << check_dict->first << " " << check_dict->second << '\n';
+  
+    if (check_dict->second == 1){
+	       std::cout << "Found in dict TRUE and ignore possible FALSE: " << check_dict->first << " " << check_dict->second << '\n';
+	       return true;
+    	}
+	}
+    return false;
+}
+
 bool check_right_inversion(char z, std::string inversed_rSide){
 	int pos = inversed_rSide.find(z);
 	if (pos != std::string::npos){
