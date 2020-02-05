@@ -159,7 +159,7 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 		if (std::isupper(x) != 0){
 			//add letter to the stack
 			LeftSideStack.emplace(x);
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     		std::cout << "Adding char to the stack " << x << std::endl;
 #endif
     		continue;
@@ -177,7 +177,7 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
     			auto ins = resolved_letters.find(letter); //try to find letter in the resolved letter
     			if (ins != resolved_letters.end()) {
 
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     				std::cout << "Found letter in the resolved dic{Letter: " << ins->first << " , " << "Value: " << ins->second << "}" << std::endl;
 #endif
     				inversed_value = ins->second;
@@ -185,19 +185,19 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 					auto inv_dict = LocalInversedChars.insert(std::make_pair(letter, !inversed_value )); //try to add to the special dict
 					inv_dict.second = !inversed_value; //inverse value and put on special dictionary
 
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     				std::cout << "Inverse letter added to the special dic{Letter: " << inv_dict.first->first << " , " << "Value: " << inv_dict.first->second << " }" << std::endl;
 #endif
 
     				LeftSideStack.emplace(letter);
 
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     				std::cout << "Also adding back symbol after inversion checking to the stack: " << letter << std::endl;
 #endif
 
 				}
 
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
 				else{
 					std::cout << "UNEXPECTED BEHAVIOR. Not found letter in the resolved dic" << std::endl;
 				}
@@ -211,13 +211,15 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 			bool value_operand1;
 			bool value_operand2;
 
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     				std::cout << "Trying to calculate two values from stack" << std::endl;
 #endif
 			if (LeftSideStack.size() == 1){
+#if DEBUG_RPN_CALCULATING
 				std::cout << "UNEXPECTED BEHAVIOR. Only one letter on stack and requested calculations\n";
 				showstackchar(LeftSideStack);
 				std::cout << "PRINTED STACK";
+#endif
 			}
 			if (LeftSideStack.size() >= 2){
 
@@ -244,32 +246,38 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 				//else process as usual from resolved dict
 					value_operand2 = getValueFromDict(resolved_letters, operand2);
 				}
+#if DEBUG_RPN_CALCULATING
 				std::cout << "Perform calculation: " << operand1 << " with " << "value " << value_operand1 << " action: " << x << " and " \
 				<< operand2 << " with " << "value: " << value_operand2 << " " << std::endl;
+#endif
 				result = RPNCalculate(value_operand1, value_operand2, x); // x is current char from line (operand)
+#if DEBUG_RPN_CALCULATING
 				std::cout << "Result after two operand calculation: " << result << std::endl;
 				std::cout << "Here should be saved result\n";
+#endif
 				LeftSideStack.emplace('r');
 				auto rewrite = resolved_letters.insert(std::make_pair('r', result));
 				rewrite.first->second = result;
     			}
 			}
 		}
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     std::cout << "Done with calculating and try to update all chars from right side" << std::endl;
 #endif
 	char ch = LeftSideStack.top(); // get last letter from stack
 	LeftSideStack.pop(); //delete it 
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     std::cout << "Get char from stack: " << ch << std::endl;
 #endif
 	auto search45 = resolved_letters.find(ch);
 	result = search45->second;
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     std::cout << "Get value according to last char from stack: " << ch << " " << "Value: " << result << std::endl;
 #endif
    	if (ch != 'r' && checkifInversed(ch, LocalInversedChars)){
+#if DEBUG_RPN_CALCULATING
    		std::cout << "Alredy got letter: " << ch << " with value: " << result  << " => requested inversion so change value to " << !result << " |" << std::endl;
+#endif
    		result = !result;
    	}
 
@@ -281,7 +289,7 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 		}
 		auto rewrite1 = resolved_letters.insert(std::make_pair(involved, result));
 		rewrite1.first->second = result;
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
   	  std::cout << "Updated needed value in the resolved list: " << involved << " " << "value: " << result << std::endl;
 #endif
 	}
@@ -289,12 +297,14 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 }
 
 bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars){
-#ifdef DEBUG_RPN_CALCULATING
+#if DEBUG_RPN_CALCULATING
     std::cout << "Only one operand and no calculations, check whether inversion requested" << std::endl;
 #endif
 	auto check_dict = LocalInversedChars.find(ch);
  	if (check_dict != LocalInversedChars.end()) {
+#if DEBUG_RPN_CALCULATING
 		std::cout << "Requested inversion, please reverse value from resolved dicitionary " << std::endl;
+#endif
 		return true;
 	}
 	return false;
@@ -304,10 +314,13 @@ bool checkiftrue(char z){
 	auto check_dict = resolved_letters.find(z);
   
  	if (check_dict != resolved_letters.end()) {
-	   	std::cout << "==============> Found in dict " << check_dict->first << " " << check_dict->second << '\n';
-  
+#if DEBUG_RPN_CALCULATING
+ 	 std::cout << "==============> Found in dict " << check_dict->first << " " << check_dict->second << '\n';
+#endif
     if (check_dict->second == 1){
+#if DEBUG_RPN_CALCULATING
 	       std::cout << "Found in dict TRUE and ignore possible FALSE: " << check_dict->first << " " << check_dict->second << '\n';
+#endif	       
 	       return true;
     	}
 	}
@@ -405,8 +418,12 @@ void giveAnswer(std::string querries){//?ABG
 	for (auto i: querries){
 		auto search = resolved_letters.find(i);
     	if (search != resolved_letters.end()) {
-    		std::cout << "FINAL_STATUS => " << "LETTER: " << i << " " \
-    		<< "Answer:" << (((bool)(search->second)) ? "TRUE" : "FALSE") << std::endl;
+    		std::cout << "\e[40mEXPERT ANSWER:\n" << "\e[37mLETTER: \e[44m" << i << "\e[40m" \
+    		<< "  \e[40mSTATUS:" << (((bool)(search->second)) ? " \e[42mTRUE\e[49m" : " \e[41mFALSE\e[49m");
+    		std::cout << std::endl;
+    		//save if in macos not support that colors
+		   	// std::cout << "EXPERT ANSWER:\n" << "LETTER: " << i << " " \
+    		// << "  STATUS:" << (((bool)(search->second)) ? " TRUE" : " FALSE") << std::endl;
 		}
 	}
 }
