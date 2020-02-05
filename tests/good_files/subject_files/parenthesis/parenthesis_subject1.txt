@@ -3,5 +3,4 @@ A | B + C => E # E is false
 =
 ?E
 
-# assertions
-# =
+# false

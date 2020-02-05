@@ -4,5 +4,4 @@ A | B + C => E # E is true
 ?E
 
 
-# assertions
-# =AE
+# true

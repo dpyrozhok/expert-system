@@ -1,7 +1,7 @@
 B + !C => A # A is false
+=BC
 
 ?A
-=BC
 
 # assertions
 # =BC

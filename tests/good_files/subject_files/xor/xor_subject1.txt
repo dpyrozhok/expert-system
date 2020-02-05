@@ -1,7 +1,7 @@
 B + C => A # A is false
 D ^ E => B # B is false
 B => C # C is false
-
+=
 ?A
 
 # assertions

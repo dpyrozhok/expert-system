@@ -6,9 +6,9 @@ G => H # H is true
 L + M => K # K is true
 O + P => L + N # L and N are true
 N => M # M is true
-
+=DEIJOP
 ?AFKP
 
-=DEIJOP
+
 # assertions
 # =DEIJOPABFGHKLNM

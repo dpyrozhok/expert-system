@@ -1,7 +1,6 @@
-A | B + C => E # E is false
+(A | B) + C => E # E is false
 (F | G) + H => E # E is false
 =AC
 ?E
 
-# assertions
-# =
+# true
