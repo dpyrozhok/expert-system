@@ -375,52 +375,77 @@ int resolver(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, s
 	giveAnswer(ConvertVectorToStr(data_parser.getterQuerry()));
 }
 
-int precedence(char x)
+int Priority(char c)
 {
-    if (x == '(') {
-        return 0;
-    } else if (x != '!') {
+    if(c == '!') {
+        return 4;
+    } else if(c == '+') {
+        return 3;
+    } else if(c== '|' ) {
+        return 2;
+    } else if(c== '^' ) {
         return 1;
+    } else {
+        return 0;
     }
-    return 2;
 }
 
-std::string convertToRPN(std::string expression)// to add &
+bool isOperator(char c)
 {
-	//expression = "C|!G+Z+(A+B)+D";
-    std::stack<char> s;
-    std::string postfix;
-    for (auto tok : expression) {
-        if (std::isupper(tok)) {
-            postfix += tok;
-        } else if (tok == '(') {
-            s.emplace(tok);
-        } else if (tok == ')') {
-            while (!s.empty()) {
-                tok = s.top();
+    return (c == '+' || c == '!' || c == '|' || c == '^');
+}
+std::string convertToRPN(std::string tokens)
+{
+    //std::string tokens = "A|B+C";//our infix expression
+    std::vector<char> outputList;//output vector
+    std::stack<char> s;//main stack
+
+
+    for(unsigned int i = 0; i < tokens.size(); i++)
+    {
+        if(std::isupper(tokens[i]))
+        {
+            outputList.push_back(tokens[i]);
+        }
+        if(tokens[i] == '(')
+        {
+            s.push(tokens[i]);
+        }
+        if(tokens[i] == ')')
+        {
+            while(!s.empty() && s.top() != '(')
+            {
+                outputList.push_back(s.top());
                 s.pop();
-                if (tok == '(') {
-                    break;
-                }
-                postfix += tok;
             }
-        } else {
-            while (!s.empty() && precedence(tok) <= precedence(s.top())) {
-                postfix += s.top();
+            s.pop();
+        }
+        if(isOperator(tokens[i]) == true)
+        {
+            while(!s.empty() && Priority(s.top()) >= Priority(tokens[i]))
+            {
+                outputList.push_back(s.top());
                 s.pop();
             }
-            s.emplace(tok);
+            s.push(tokens[i]);
         }
     }
-    while (!s.empty()) {
-        postfix += s.top();
+    //pop any remaining operators from the stack and insert to outputlist
+    while(!s.empty())
+    {
+        outputList.push_back(s.top());
         s.pop();
     }
-    expression = postfix;
-    #if DEBUG_SOLVER
-    std::cout << "Converted to RPN: " << expression << std::endl;
-    #endif
-    return expression;
+
+    tokens = "";
+    for(unsigned int i = 0; i < outputList.size(); i++)
+    {
+        tokens +=outputList[i];
+    }
+#if DEBUG_RPN
+    std::cout<<"\nMALK RPN ==============="<<tokens<<std::endl;
+#endif
+    return tokens;
 }
 
 std::set<char> GetInvolvedChars(std::string str){
@@ -635,6 +660,7 @@ int main(int ac, char **av){
 	catch (char const * line){
 		std::cout << line << std::endl;
 	}
+
 	return (0);
 }
 

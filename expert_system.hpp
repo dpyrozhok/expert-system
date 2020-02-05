@@ -27,6 +27,7 @@
 #define DEBUG_PARSING 0
 #define DEBUG_RULES_WORK 0
 #define DEBUG_SOLVER 0
+#define DEBUG_RPN 1
 
 enum DATA_SWITCH{
 	RULES_START = 65,
