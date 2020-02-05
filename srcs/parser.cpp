@@ -380,14 +380,14 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 
 		if (it->rside.find(quer) != std::string::npos){
 			if (it->is_used == true){
-				std::cout << "Error. Find internal loop in the rule list\n";
+                throw("Error. Find internal loop in the rule list");
 				exit(777);
 			}
 			it->is_used = true;
 #if PRINT_STEPS
 			std::cout << "Found letter in the right side" << std::endl;
-#endif
 			std::cout << it->rule << std::endl;
+#endif
 			toSolve.push(it->rule);
 		}
 #if DEBUG_SOLVER
@@ -420,7 +420,7 @@ void giveAnswer(std::string querries){//?ABG
 	for (auto i: querries){
 		auto search = resolved_letters.find(i);
     	if (search != resolved_letters.end()) {
-    		std::cout << "\e[40mEXPERT ANSWER:\n" << "\e[37mLETTER: \e[44m" << i << "\e[40m" \
+    		std::cout << "\e[40mEXPERT ANSWER: " << "\e[37mLETTER: \e[44m" << i << "\e[40m" \
     		<< "  \e[40mSTATUS:" << (((bool)(search->second)) ? " \e[42mTRUE\e[49m" : " \e[41mFALSE\e[49m");
     		std::cout << std::endl;
     		//save if in macos not support that colors
@@ -515,7 +515,7 @@ std::string convertToRPN(std::string tokens)
         tokens +=outputList[i];
     }
 #if DEBUG_RPN
-    std::cout<<"\nMALK RPN ==============="<<tokens<<std::endl;
+    std::cout<<"\nRPN ==============="<<tokens<<std::endl;
 #endif
     return tokens;
 }
@@ -654,7 +654,7 @@ int process_rules(void){
 		PrintSet(temp.invL);
 		PrintSet(temp.invR);
 #endif
-		temp.lside = convertToRPN(left_token);
+		temp.lside = left_token;
 		temp.rside = right_token;//convertToRPN(right_token);
 
 #if DEBUG_SOLVER
@@ -669,11 +669,7 @@ int process_rules(void){
 	// std::vector<ParsedRuleList>::iterator it;
 	// it = rule_list.begin();
 	//std::cout << "YAAAAAAAAAAAAAZ" << it->rside << std::endl;
-#if DEBUG_RPN
-	for (auto i: rule_list) {
-		std::cout<<rule_list<<std::endl;
-	}
-#endif
+
 	resolver(rule_list, init_facts, querries);
 }	
 
@@ -736,7 +732,7 @@ int main(int ac, char **av){
 		    std::cout << "ERROR. Invalid numbers of arguement\n";
 		 }
 	catch (char const * line){
-		std::cout << line << std::endl;
+		std::cout <<"\e[41m"<<line<<"\e[49m"<<std::endl;
 	}
 
 	return (0);
