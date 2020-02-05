@@ -49,6 +49,7 @@ bool check_right_inversion(char z,std::string inversed_rSide);
 std::map<char, bool> resolved_letters;
 bool bool_result;
 bool checkiftrue(char z);
+bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars);
 
 void showstack(std::stack<std::string> toSolve) 
 { 
@@ -267,6 +268,11 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 #ifdef DEBUG_RPN_CALCULATING
     std::cout << "Get value according to last char from stack: " << ch << " " << "Value: " << result << std::endl;
 #endif
+   	if (ch != 'r' && checkifInversed(ch, LocalInversedChars)){
+   		std::cout << "Alredy got letter: " << ch << " with value: " << result  << " => requested inversion so change value to " << !result << " |" << std::endl;
+   		result = !result;
+   	}
+
 	for (auto involved: invChRight_str){
 //updating all letters from right side
 		if (checkiftrue(involved)){
@@ -281,7 +287,19 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 	}
 
 }
-	
+
+bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars){
+#ifdef DEBUG_RPN_CALCULATING
+    std::cout << "Only one operand and no calculations, check whether inversion requested" << std::endl;
+#endif
+	auto check_dict = LocalInversedChars.find(ch);
+ 	if (check_dict != LocalInversedChars.end()) {
+		std::cout << "Requested inversion, please reverse value from resolved dicitionary " << std::endl;
+		return true;
+	}
+	return false;
+}
+
 bool checkiftrue(char z){
 	auto check_dict = resolved_letters.find(z);
   
