@@ -518,7 +518,7 @@ std::string convertToRPN(std::string tokens)
             while(!s.empty() && Priority(s.top()) >= Priority(tokens[i]) && !outputList.empty())
             {
 
-            	if (s.top() == tokens[i]){
+            	if (s.top() == tokens[i] == '!'){
             		break;
             	}
 
