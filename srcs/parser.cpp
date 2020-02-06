@@ -172,8 +172,28 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 				bool inversed_value;
 
     			LeftSideStack.pop(); //delete last letter from stack
-    			
+    			auto local_inv = LocalInversedChars.find(letter); //try to find letter in the resolved letter
     			auto ins = resolved_letters.find(letter); //try to find letter in the resolved letter
+
+    			if (local_inv != LocalInversedChars.end()) {
+#if DEBUG_RPN_CALCULATING
+    				std::cout << "Found letter in the local dic{Letter: " << local_inv->first << " , " << "Value: " << local_inv->second << "}" << std::endl;
+#endif
+    				inversed_value = !local_inv->second;
+    				local_inv->second = inversed_value;
+					//auto inv_dict = LocalInversedChars.insert(std::make_pair(letter, inversed_value )); //try to add to the special dict
+					//inv_dict.second = inversed_value; //inverse value and put on special dictionary
+
+#if DEBUG_RPN_CALCULATING
+    				std::cout << "Inverse letter added to the local dic{Letter: " << local_inv->first << " , " << "Value: " << local_inv->second << " }" << std::endl;
+#endif
+    				auto check = LocalInversedChars.find(letter); //try to find letter in the resolved letter
+    				std::cout <<"from local" << check->second <<'\n';
+
+					LeftSideStack.emplace(letter);
+
+					continue;
+    			}
     			if (ins != resolved_letters.end()) {
 
 #if DEBUG_RPN_CALCULATING
@@ -273,7 +293,9 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 #if DEBUG_RPN_CALCULATING
     std::cout << "Get value according to last char from stack: " << ch << " " << "Value: " << result << std::endl;
 #endif
-   	if (ch != 'r' && checkifInversed(ch, LocalInversedChars)){
+    std::cout << "CHAR : " << ch << std::endl;
+   	if (checkifInversed(ch, LocalInversedChars))//ch != 'r' &&
+   	 {
 #if DEBUG_RPN_CALCULATING
    		std::cout << "Alredy got letter: " << ch << " with value: " << result  << " => requested inversion so change value to " << !result << " |" << std::endl;
 #endif
@@ -299,6 +321,7 @@ bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars){
 #if DEBUG_RPN_CALCULATING
     std::cout << "Only one operand and no calculations, check whether inversion requested" << std::endl;
 #endif
+    std::cout << "Check finally inverse dict for : " << ch << std::endl;
 	auto check_dict = LocalInversedChars.find(ch);
  	if (check_dict != LocalInversedChars.end()) {
 #if DEBUG_RPN_CALCULATING
@@ -492,8 +515,13 @@ std::string convertToRPN(std::string tokens)
         }
         if(isOperator(tokens[i]) == true)
         {
-            while(!s.empty() && Priority(s.top()) >= Priority(tokens[i]))
+            while(!s.empty() && Priority(s.top()) >= Priority(tokens[i]) && !outputList.empty())
             {
+
+            	if (s.top() == tokens[i]){
+            		break;
+            	}
+
                 outputList.push_back(s.top());
                 s.pop();
             }

@@ -27,7 +27,7 @@
 #define DEBUG_PARSING 0
 #define DEBUG_RULES_WORK 0
 #define DEBUG_SOLVER 0
-#define DEBUG_RPN 0
+#define DEBUG_RPN 1
 #define DEBUG_RPN_CALCULATING 0
 
 enum DATA_SWITCH{
