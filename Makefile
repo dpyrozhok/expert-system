@@ -2,14 +2,14 @@ NAME = expertsystem
 
 SRCS = srcs/parser.cpp \
 
-
-CPP = clang++ -std=c++11
+CPP = g++ #Linix
+#MAC CPP = clang++ -std=c++11
 CC_FLAGS = 
 
 OBJ = $(SRCS:.cpp=.o)
 
 NOC=\033[0m
-OKC=\033[32;05m
+OKC=\033[32m
 ERC=\033[31m
 WAC=\033[33m
 

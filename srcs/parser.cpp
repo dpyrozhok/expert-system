@@ -91,8 +91,7 @@ bool limitateRightSide(std::vector<ParsedRuleList> rule_list){
 			std::cout << "Additional checking: " << i << std::endl;
 #endif
 			if (!(i >= RULES_START && i <= RULES_END) && (i != PLUS) && (i != VOSKL)){
-				std::cout << "Error. Not allowed operator or symbol in the right side according to mandatory requirements" << '\n';
-				exit(1);
+				throw("Error. Not allowed operator or symbol in the right side according to mandatory requirements");
 				}
 			}
 
@@ -381,7 +380,6 @@ bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_fact
 		if (it->rside.find(quer) != std::string::npos){
 			if (it->is_used == true){
                 throw("Error. Find internal loop in the rule list");
-				exit(777);
 			}
 			it->is_used = true;
 #if PRINT_STEPS
@@ -621,8 +619,7 @@ int process_rules(void){
 #endif
 		// std::cout << i.find(delimiter) << std::endl;  // position in the line
 		if (i.find(delimiter) != std::string::npos){
-			std::cout << "Error. Bidirectional not supported. That's bonus part" << std::endl;
-			exit(2);
+			throw("Error. Bidirectional not supported. That's bonus part");
 		}
 #if DEBUG_SOLVER
 		else{
@@ -709,7 +706,7 @@ std::cout << "No facts\n";
 
 	//convertToRPN("C|!G+Z+(A+B)+D");
 if (data_parser.getterQuerry().empty())
-	std::cout << "Error. No querries\n";
+	throw("Error. No querries");
 else
 	process_rules();
 }
@@ -729,7 +726,7 @@ int main(int ac, char **av){
 		}
 	}
 	catch( const std::invalid_argument& e ) {
-		    std::cout << "ERROR. Invalid numbers of arguement\n";
+		    std::cout <<"\e[41m"<< "ERROR. Invalid numbers of arguement"<<"\e[49m"<<std::endl;
 		 }
 	catch (char const * line){
 		std::cout <<"\e[41m"<<line<<"\e[49m"<<std::endl;

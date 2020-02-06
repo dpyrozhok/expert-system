@@ -104,30 +104,22 @@ public:
 		std::string line;
 		 FILE* fd = std::fopen(filename.c_str(), "r");
     if(!fd) {
-        std::perror("File opening failed");
-        exit (3);
+        throw("Error. File opening failed: No such file or directory");
     }
 #if PRINT_INPUT
     int c; // note: int, not char, required to handle EOF
     while ((c = std::fgetc(fd)) != EOF) { // standard C I/O file reading loop
        std::putchar(c);
     }
-    std::cout<<"\n";
+    if (!std::ferror(fd)) std::cout<<"\n";
 #endif
- 
+
     if (std::ferror(fd)) {
-        std::puts("I/O error when reading new");
-    	exit (3);
+    	throw("Error when reading file ");
     }
-    else if (std::feof(fd)){
-#if DEBUG_PARSING
-        std::puts("End of file reached successfully");
-#endif
-	}
 		std::ifstream input(filename);
 	if (!input.is_open()) {
-   		std::cout << "failed to open " << filename << '\n';
-		exit(778);  		
+		throw("Error. Failed to open ");
   	}
 #if DEBUG_READING
 	std::cout << input.good();
@@ -316,7 +308,7 @@ int SyntaxRuleChecker(std::string line){
 		std::cout << "==========================" << std::endl;
 #endif
 		if (SyntaxRuleChecker(line) == false){
-			throw("Error. Bad syntax in the rule statements\n");
+			throw("Error. Bad syntax in the rule statements");
 		}
 		this->Rules.push_back(line);
 		//ToDo Validate Facts!
@@ -410,7 +402,7 @@ int SyntaxRuleChecker(std::string line){
 				validRules(line);
 			}
 			else
-				throw("Error. Bad line\n");
+				throw("Error. Bad line");
 		}
 	}
 
