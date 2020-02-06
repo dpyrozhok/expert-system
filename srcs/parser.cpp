@@ -229,7 +229,6 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 			char operand2;
 			bool value_operand1;
 			bool value_operand2;
-
 #if DEBUG_RPN_CALCULATING
     				std::cout << "Trying to calculate two values from stack" << std::endl;
 #endif
@@ -274,6 +273,23 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 				std::cout << "Result after two operand calculation: " << result << std::endl;
 				std::cout << "Here should be saved result\n";
 #endif
+				//если на стеке уже есть результат и он не участвовал в результате, давай его тоже на стэк добавим?
+//KOSTYL 		
+
+				if (!LeftSideStack.empty()){
+					char check_stack_for_r;
+
+					check_stack_for_r = LeftSideStack.top();
+
+					if (check_stack_for_r == 'r'){
+						auto rewrite = resolved_letters.insert(std::make_pair('t', result));
+						rewrite.first->second = result;	
+						LeftSideStack.emplace('t');
+						std::cout << "PROIZOSHLA DI4\n";
+
+						continue;
+					}
+				}
 				LeftSideStack.emplace('r');
 				auto rewrite = resolved_letters.insert(std::make_pair('r', result));
 				rewrite.first->second = result;

@@ -27,7 +27,7 @@
 #define DEBUG_PARSING 0
 #define DEBUG_RULES_WORK 0
 #define DEBUG_SOLVER 0
-#define DEBUG_RPN 1
+#define DEBUG_RPN 0
 #define DEBUG_RPN_CALCULATING 0
 
 enum DATA_SWITCH{
@@ -239,7 +239,7 @@ int SyntaxRuleChecker(std::string line){
 #if DEBUG_PARSING
 			std::cout << "Found PIPE" << std::endl;
 #endif
-			if ( !(isAlpha(lastSymb)) )
+			if ( !(isAlpha(lastSymb)) && (lastSymb != ')') )
 				return false;
 		}
 		else if (i == STEPEN){
@@ -280,7 +280,8 @@ int SyntaxRuleChecker(std::string line){
 		}
 		else{
 #if DEBUG_PARSING
-			std::cout << "Found UNDEFINED VARIANT" << std::endl;			
+			std::cout << "Found UNDEFINED VARIANT" << std::endl;
+			std::cout << i << "\n";		
 #endif		
 			return false;
 		}
