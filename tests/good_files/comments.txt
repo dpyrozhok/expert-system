@@ -1,6 +1,6 @@
-A + B => C ##
-B + A => D#
-C + D => F #  #  #
+A + B => C ##true
+B + A => D#true
+C + D => F #  #  #true
 #
 ##
 # # A + B => C
