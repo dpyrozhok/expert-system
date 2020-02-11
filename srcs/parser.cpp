@@ -329,7 +329,6 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
   	  std::cout << "Updated needed value in the resolved list: " << involved << " " << "value: " << result << std::endl;
 #endif
 	}
-
 }
 
 bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars){
@@ -502,12 +501,65 @@ bool isOperator(char c)
 {
     return (c == '+' || c == '!' || c == '|' || c == '^');
 }
+
+std::string temp = "";
+
+std::string GetFuckOffNotNeededVoskl(std::string token){
+	std::cout << "input token: " << token << std::endl;;
+	std::cout << "entered GetFuckOffNotNeededVoskl\n"; 
+	// std::string str = "Z!!!!B!+";
+	std::string str = token;
+	int start = 0;
+	int end = 0;
+	int count = 0;
+	start = str.find('!');
+	if (start == std::string::npos){
+		std::cout << "exiting GetFuckOffNotNeededVoskl\n"; 
+		return token;
+	}
+	std:: cout << "Find (!) in the position: " << start << std::endl;
+
+	int i = start;
+	while ( str[i] == '!'){
+		count++;
+		i++;
+	}
+	std:: cout << "Nas4ital stolko skobok: " << count << std::endl;
+
+	if( (count % 2) == 0){
+		temp += str.substr(0, start);
+		std:: cout << "Parnoe kolli4estvo skobok vozle bukvi" << std::endl;
+		std:: cout << "Chto poluchilos: " << temp << std::endl;
+	}
+	else{
+		temp += str.substr(0, start + 1);
+		std:: cout << "Ostavlyau odnu skobku, neparnoe kollvo skobok" << std::endl;
+		std:: cout << "Chto poluchilos: " << temp << std::endl;
+
+	}
+
+	std::cout << "Vremennaya stroka: " << temp << std::endl;
+
+	std::string polu_str = str.substr(start + count, str.size() - (start + count));
+	end = polu_str.find('!');
+	if (end == std::string::npos){
+		temp += polu_str;
+		std::cout << "Bolshe izmenenii ne nado, otdau obratno str: " << temp << std::endl;
+
+		return temp;
+	}
+	else{
+		GetFuckOffNotNeededVoskl(polu_str);
+	}
+	std::cout << "Vremennaya stroka pered vihodom: " << temp << std::endl;	
+	std::cout << "exiting GetFuckOffNotNeededVoskl\n"; 
+	return token;
+}
 std::string convertToRPN(std::string tokens)
 {
     //std::string tokens = "A|B+C";//our infix expression
     std::vector<char> outputList;//output vector
     std::stack<char> s;//main stack
-
 
     for(unsigned int i = 0; i < tokens.size(); i++)
     {
@@ -532,7 +584,6 @@ std::string convertToRPN(std::string tokens)
         {
             while(!s.empty() && Priority(s.top()) >= Priority(tokens[i]) && !outputList.empty())
             {
-
             	if (s.top() == tokens[i] == '!'){
             		break;
             	}
@@ -540,7 +591,8 @@ std::string convertToRPN(std::string tokens)
                 outputList.push_back(s.top());
                 s.pop();
             }
-            s.push(tokens[i]);
+	        s.push(tokens[i]);
+            
         }
     }
     //pop any remaining operators from the stack and insert to outputlist
@@ -557,6 +609,11 @@ std::string convertToRPN(std::string tokens)
     }
 #if DEBUG_RPN
     std::cout<<"\nRPN ==============="<<tokens<<std::endl;
+#endif
+    temp = "";
+    GetFuckOffNotNeededVoskl(tokens);
+#if DEBUG_RPN
+    std::cout<<"\nAFTER DELETING (!) RPN ==============="<<tokens<<std::endl;
 #endif
     return tokens;
 }
