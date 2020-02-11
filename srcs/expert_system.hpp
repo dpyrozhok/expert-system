@@ -24,7 +24,7 @@
 #define PRINT_INPUT 1
 #define PRINT_STEPS 0
 #define DEBUG_READING 0
-#define DEBUG_PARSING 0
+#define DEBUG_PARSING 1
 #define DEBUG_RULES_WORK 0
 #define DEBUG_SOLVER 0
 #define DEBUG_RPN 0
@@ -225,7 +225,7 @@ int SyntaxRuleChecker(std::string line){
 #if DEBUG_PARSING
 			std::cout << "Found VOSKL" << std::endl;
 #endif
-			if (isAlpha(lastSymb))// to add lastSymb can be '\0'
+			if (isAlpha(lastSymb) || lastSymb == '!')// to add lastSymb can be '\0'
 				return false;
 		}
 		else if (i == PLUS){

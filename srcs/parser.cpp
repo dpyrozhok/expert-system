@@ -144,7 +144,7 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 	std::string final_status = convertToRPN(left_token);
 	std::set<char> inv_Chars_right = GetInvolvedChars(right_token);
 	std::string invChRight_str = ConvertSetToStr(inv_Chars_right);
-	std::string inversed_rSide = right_token;//convertToRPN(right_token);
+	std::string inversed_rSide = convertToRPN(right_token);
 
 #if PRINT_STEPS
 	std::cout << "Processing rule: " << i << std::endl;
@@ -188,7 +188,6 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
     				std::cout << "Inverse letter added to the local dic{Letter: " << local_inv->first << " , " << "Value: " << local_inv->second << " }" << std::endl;
 #endif
     				auto check = LocalInversedChars.find(letter); //try to find letter in the resolved letter
-    				std::cout <<"from local" << check->second <<'\n';
 
 					LeftSideStack.emplace(letter);
 
@@ -308,8 +307,8 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 	result = search45->second;
 #if DEBUG_RPN_CALCULATING
     std::cout << "Get value according to last char from stack: " << ch << " " << "Value: " << result << std::endl;
-#endif
     std::cout << "CHAR : " << ch << std::endl;
+#endif
    	if (checkifInversed(ch, LocalInversedChars))//ch != 'r' &&
    	 {
 #if DEBUG_RPN_CALCULATING
@@ -336,8 +335,8 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars){
 #if DEBUG_RPN_CALCULATING
     std::cout << "Only one operand and no calculations, check whether inversion requested" << std::endl;
-#endif
     std::cout << "Check finally inverse dict for : " << ch << std::endl;
+#endif
 	auto check_dict = LocalInversedChars.find(ch);
  	if (check_dict != LocalInversedChars.end()) {
 #if DEBUG_RPN_CALCULATING
@@ -696,7 +695,7 @@ int process_rules(void){
 		PrintSet(temp.invR);
 #endif
 		temp.lside = left_token;
-		temp.rside = right_token;//convertToRPN(right_token);
+		temp.rside = convertToRPN(right_token);
 
 #if DEBUG_SOLVER
 
