@@ -575,9 +575,21 @@ std::string convertToRPN(std::string tokens)
 
 std::string GetInvolvedCharsNastya(std::string str){
 	std::string newstr;
+	char last_char = '\0';
 
 	for (auto i: str){
 			if ((i >= LEX_START && i <= LEX_END) || i == '!'){
+				if (last_char == '!' && i == '!')
+				{
+					newstr.erase(newstr.size() - 1, 1);
+					last_char = '\0';
+#if DEBUG_RPN_CALCULATING_NASTYA
+		std::cout<<i<<std::endl;
+		std::cout << "Two !! remove last" << newstr<<std::endl;
+#endif
+					continue;
+				}
+				last_char = i;
 				newstr = newstr + i;
 	#if DEBUG_RPN_CALCULATING_NASTYA
 			std::cout<<i<<std::endl;
