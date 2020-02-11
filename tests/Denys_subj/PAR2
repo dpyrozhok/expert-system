@@ -1,0 +1,6 @@
+A | B + C => E
+(F | G) + H => E
+=A
+?E
+
+# With =A, E should be true.

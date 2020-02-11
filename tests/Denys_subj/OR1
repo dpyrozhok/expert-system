@@ -1,0 +1,9 @@
+B + C => A
+D | E => B
+B => C
+
+=
+
+?A
+
+#With =, A should be false.
