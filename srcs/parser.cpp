@@ -643,7 +643,7 @@ std::string convertToRPN(std::string tokens)
     std::cout<<"\nRPN ==============="<<tokens<<std::endl;
 #endif
     temp = "";
-    GetFuckOffNotNeededVoskl(tokens);
+    tokens = GetFuckOffNotNeededVoskl(tokens);
 #if DEBUG_RPN
     std::cout<<"\nAFTER DELETING (!) RPN ==============="<<tokens<<std::endl;
 #endif
