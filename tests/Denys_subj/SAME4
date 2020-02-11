@@ -1,0 +1,5 @@
+B => A
+C => A
+=BC
+?A
+#With =BC, A should be true.
