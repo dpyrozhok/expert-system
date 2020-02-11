@@ -308,8 +308,8 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 	result = search45->second;
 #if DEBUG_RPN_CALCULATING
     std::cout << "Get value according to last char from stack: " << ch << " " << "Value: " << result << std::endl;
-#endif
     std::cout << "CHAR : " << ch << std::endl;
+#endif
    	if (checkifInversed(ch, LocalInversedChars))//ch != 'r' &&
    	 {
 #if DEBUG_RPN_CALCULATING
@@ -336,8 +336,8 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
 bool checkifInversed(char ch, std::map<char, bool> LocalInversedChars){
 #if DEBUG_RPN_CALCULATING
     std::cout << "Only one operand and no calculations, check whether inversion requested" << std::endl;
-#endif
     std::cout << "Check finally inverse dict for : " << ch << std::endl;
+#endif
 	auto check_dict = LocalInversedChars.find(ch);
  	if (check_dict != LocalInversedChars.end()) {
 #if DEBUG_RPN_CALCULATING
