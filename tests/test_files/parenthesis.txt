@@ -1,8 +1,8 @@
-A + B => C
-D | E => C
-C ^ F => G
-E | (D + A + B) => !F
-!(G + (!C | F)) + B ^ (A + F) => Z
+A + B => C #true
+D | E => C #true
+C ^ F => G #false
+E | (D + A + B) => !F #false
+!(G + (!C | F)) + B ^ (A + F) => Z #true
 
 =ABD
 ?GZE

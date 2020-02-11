@@ -40,6 +40,7 @@ What's already done with Solver:
 */
 std::string ConvertSetToStr(std::set<char> used_chars);
 std::set<char> GetInvolvedChars(std::string str);
+std::string GetInvolvedCharsNastya(std::string str);
 bool askQuestion(std::vector<ParsedRuleList> rule_list, std::set<char> init_facts, char quer);
 std::string convertToRPN(std::string expression);
 std::string ConvertVectorToStr(std::vector<std::string> vector_);
@@ -317,16 +318,27 @@ void SolvingStack(std::string toSolve, std::vector<ParsedRuleList> rule_list, st
    		result = !result;
    	}
 
-	for (auto involved: invChRight_str){
+	std::string answer_letters = GetInvolvedCharsNastya(right_token); /* All asked letters with one ! */
+#if DEBUG_RPN_CALCULATING_NASTYA
+  	  std::cout <<" answer_letters "<<answer_letters<<  std::endl;
+#endif
+		int is_neg = 0;
+	for (auto involved: answer_letters){
 //updating all letters from right side
+		if (involved == '!') {
+			is_neg = 1;
+			continue;
+		}
 		if (checkiftrue(involved)){
 		//skip character if already status TRUE present in the resolved list
+			is_neg = 0;
 			continue;
 		}
 		auto rewrite1 = resolved_letters.insert(std::make_pair(involved, result));
-		rewrite1.first->second = result;
+		rewrite1.first->second = (is_neg) ? !result : result;
+		is_neg = 0;
 #if DEBUG_RPN_CALCULATING
-  	  std::cout << "Updated needed value in the resolved list: " << involved << " " << "value: " << result << std::endl;
+  	  std::cout << "Updated needed value in the resolved list: " << involved << " " << "value: " << result <<" rewrite "<<rewrite1.first->second<<"  "<<rewrite1.first->first<< std::endl;
 #endif
 	}
 }
@@ -618,6 +630,36 @@ std::string convertToRPN(std::string tokens)
     return tokens;
 }
 
+std::string GetInvolvedCharsNastya(std::string str){
+	std::string newstr;
+	char last_char = '\0';
+
+	for (auto i: str){
+			if ((i >= LEX_START && i <= LEX_END) || i == '!'){
+				if (last_char == '!' && i == '!')
+				{
+					newstr.erase(newstr.size() - 1, 1);
+					last_char = '\0';
+#if DEBUG_RPN_CALCULATING_NASTYA
+		std::cout<<i<<std::endl;
+		std::cout << "Two !! remove last" << newstr<<std::endl;
+#endif
+					continue;
+				}
+				last_char = i;
+				newstr = newstr + i;
+	#if DEBUG_RPN_CALCULATING_NASTYA
+			std::cout<<i<<std::endl;
+			std::cout << "Ivolved chars in the string" << newstr<<std::endl;
+	#endif
+			}
+			else
+				continue;
+		}
+	return (newstr);
+}
+
+
 std::set<char> GetInvolvedChars(std::string str){
 
 	std::set<char> used_chars;
@@ -641,7 +683,7 @@ std::set<char> GetInvolvedChars(std::string str){
 // 			continue;
 // 	}
 */
-#if DEBUG_SOLVER
+#if DEBUG_RPN_CALCULATING_NASTYA
 	std::cout << "Ivolved chars in the string" << std::endl;
   	for (std::set<char>::iterator it = used_chars.begin(); it != used_chars.end(); ++it)
   	  std::cout << *it;
