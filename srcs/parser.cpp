@@ -517,8 +517,12 @@ bool isOperator(char c)
 std::string temp = "";
 
 std::string GetFuckOffNotNeededVoskl(std::string token){
+
+#if DEBUG_RPN
 	std::cout << "input token: " << token << std::endl;;
 	std::cout << "entered GetFuckOffNotNeededVoskl\n"; 
+#endif
+
 	// std::string str = "Z!!!!B!+";
 	std::string str = token;
 	int start = 0;
@@ -526,47 +530,63 @@ std::string GetFuckOffNotNeededVoskl(std::string token){
 	int count = 0;
 	start = str.find('!');
 	if (start == std::string::npos){
+
+#if DEBUG_RPN
 		std::cout << "exiting GetFuckOffNotNeededVoskl\n"; 
+#endif
 		return token;
 	}
+#if DEBUG_RPN
 	std:: cout << "Find (!) in the position: " << start << std::endl;
-
+#endif
 	int i = start;
 	while ( str[i] == '!'){
 		count++;
 		i++;
 	}
+#if DEBUG_RPN
 	std:: cout << "Nas4ital stolko skobok: " << count << std::endl;
-
+#endif
 	if( (count % 2) == 0){
 		temp += str.substr(0, start);
+#if DEBUG_RPN
 		std:: cout << "Parnoe kolli4estvo skobok vozle bukvi" << std::endl;
 		std:: cout << "Chto poluchilos: " << temp << std::endl;
+#endif
 	}
 	else{
 		temp += str.substr(0, start + 1);
+#if DEBUG_RPN
 		std:: cout << "Ostavlyau odnu skobku, neparnoe kollvo skobok" << std::endl;
 		std:: cout << "Chto poluchilos: " << temp << std::endl;
-
+#endif
 	}
 
+#if DEBUG_RPN
 	std::cout << "Vremennaya stroka: " << temp << std::endl;
+#endif
 
 	std::string polu_str = str.substr(start + count, str.size() - (start + count));
 	end = polu_str.find('!');
 	if (end == std::string::npos){
 		temp += polu_str;
+#if DEBUG_RPN
 		std::cout << "Bolshe izmenenii ne nado, otdau obratno str: " << temp << std::endl;
-
+#endif
 		return temp;
 	}
 	else{
 		GetFuckOffNotNeededVoskl(polu_str);
 	}
+
+#if DEBUG_RPN
 	std::cout << "Vremennaya stroka pered vihodom: " << temp << std::endl;	
 	std::cout << "exiting GetFuckOffNotNeededVoskl\n"; 
-	return token;
+#endif
+
+	return temp;
 }
+
 std::string convertToRPN(std::string tokens)
 {
     //std::string tokens = "A|B+C";//our infix expression
