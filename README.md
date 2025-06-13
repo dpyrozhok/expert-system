@@ -1,6 +1,6 @@
 Expert system
 
-
+<code>
 # this is a comment$
 # all the required rules and symbols, along with the bonus ones, will be
 # shown here. spacing is not important
@@ -26,3 +26,4 @@ E + F => !V # E and F implies not V
 ?GVX # Queries : What are G, V and X ?
 
 #?VK
+</code>
